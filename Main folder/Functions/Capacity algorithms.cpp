@@ -47,3 +47,30 @@ int LowestCapacityIndex(vector<vector<Battery>>& batteries, int parallel) {
     return index;
 }
 
+int AveragePacksCapacity(vector<int>& batteryPackCapacities) {
+    int sum = 0;
+    for (int i=0; i<batteryPackCapacities.size(); i++) {
+        sum += batteryPackCapacities[i];
+    }
+    if (batteryPackCapacities.size() == 0) return 0;
+    return sum / batteryPackCapacities.size();
+}
+
+int PackDivergence(vector<int>& batteryPackCapacities, int average) {
+    int av = AveragePacksCapacity(batteryPackCapacities);
+    return av - average;
+}
+
+int PackDeviation(vector<Battery>& batteries) {
+    int smallestBattery = batteries[0].capacity;
+    int biggestBattery = batteries[0].capacity;
+    for (int i=1; i<batteries.size(); i++) {
+        if (batteries[i].capacity < smallestBattery) {
+            smallestBattery = batteries[i].capacity;
+        }
+        if (batteries[i].capacity > biggestBattery) {
+            biggestBattery = batteries[i].capacity;
+        }
+    }
+    return biggestBattery-smallestBattery;
+}
