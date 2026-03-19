@@ -109,7 +109,7 @@ void TakeUserInput(int & series, int & parallel) {
     cin >> parallel;
 }
 
-void PacksOutput(vector<vector<Battery>>& batteries, int series, int parallel,  vector<int>& packCapacities, string topping, BiggestCapDifference difference) {
+void PacksOutput(vector<vector<Battery>>& batteries, int series, int parallel, vector<int>& packCapacities, string topping, BiggestCapDifference difference) {
     int colWidth = 9;
     int length = series * (colWidth + 2) + 31;
 
