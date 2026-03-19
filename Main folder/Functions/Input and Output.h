@@ -11,13 +11,14 @@
 void Read(std::string filename, std::vector<Battery>& batteries);
 
 template <typename T1, typename T2, typename T3>
-std::string Formed(T1 first, T2 second, T3 third) {
+std::string Formed1(T1 first, T2 second, T3 third) {
     std::ostringstream oss;
     oss << "| " << std::left << std::setw(10) << first
         << " | " << std::left << std::setw(15) << second
         << " | " << std::left << std::setw(20) << third << " |";
     return oss.str();
 }
+
 
 void Output(std::vector<Battery> batteries, std::string topping);
 

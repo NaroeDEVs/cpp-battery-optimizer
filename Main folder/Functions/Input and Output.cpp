@@ -1,4 +1,5 @@
 #include "Input and Output.h"
+#include "Capacity algorithms.h"
 #include <vector>
 #include <iomanip>
 #include <sstream>
@@ -94,7 +95,7 @@ void Output(vector<Battery> batteries, string topping) {
     cout << dottedLine << endl;
 
     for (int i = 0; i < batteries.size(); i++) {
-        cout<<Formed(batteries[i].id, batteries[i].capacity, batteries[i].manufacturer)<<endl;
+        cout<<Formed1(batteries[i].id, batteries[i].capacity, batteries[i].manufacturer)<<endl;
     }
     cout << dottedLine << endl;
     cout<<endl;
@@ -110,7 +111,7 @@ void TakeUserInput(int & series, int & parallel) {
 
 void PacksOutput(vector<vector<Battery>>& batteries, int series, int parallel,  vector<int>& packCapacities, string topping, BiggestCapDifference difference) {
     int colWidth = 9;
-    int length = series * (colWidth + 2) + 1;
+    int length = series * (colWidth + 2) + 31;
 
     string dottedLine(length, '=');
 
@@ -123,15 +124,21 @@ void PacksOutput(vector<vector<Battery>>& batteries, int series, int parallel,  
     cout << lineTop << endl;
     cout << dottedLine << endl;
 
+    cout <<left<< setw(30) << "| Pack:";
+
     for (int i = 0; i < series; i++) {
         string headerTitle = "S" + to_string(i+1);
 
-        cout << "| " << left << setw(colWidth) << headerTitle;
+    cout<<"| " << left << setw(colWidth) << headerTitle;
     }
     cout << "|" << endl;
     cout << dottedLine << endl;
 
     for (int i = 0; i < parallel; i++) {
+
+        string label = "| " + to_string(i + 1) + ". cell (mAh) :";
+        cout << left << setw(30) << label;
+
         for (int j=0; j<series; j++) {
             string headerTitle = to_string(batteries[j][i].capacity);
             cout << "| " << left << setw(colWidth) << headerTitle;
@@ -139,6 +146,10 @@ void PacksOutput(vector<vector<Battery>>& batteries, int series, int parallel,  
         cout << "|" << endl;
     }
     cout<< dottedLine << endl;
+
+    string label = "| Total capacity (mAh):";
+    cout << left << setw(30) << label;
+
     for (int c = 0; c<packCapacities.size(); c++) {
         string headerTitle = to_string(packCapacities[c]);
         cout << "| " << left << setw(colWidth) << headerTitle;
@@ -146,7 +157,37 @@ void PacksOutput(vector<vector<Battery>>& batteries, int series, int parallel,  
     cout << "|" << endl;
     cout << dottedLine << endl;
 
-    string CapacityDifferenceLine = "|Max diff: S" + to_string(difference.smallest+1)+" and S" + to_string(difference.biggest+1)+": "+to_string(difference.difference) + " mAh";
+
+    string label1 = "| Divergence from avg: ";
+    cout << left << setw(30) << label1;
+    int average = AveragePacksCapacity(packCapacities);
+
+    for (int c = 0; c<packCapacities.size(); c++) {
+        int divergence = packCapacities[c] - average;
+        string headerTitle;
+
+        if (divergence > 0) {
+            headerTitle = "+" + to_string(divergence);
+        }
+        else headerTitle = to_string(divergence);
+
+        cout << "| " << left << setw(colWidth) << headerTitle;
+    }
+    cout << "|" << endl;
+    cout<<dottedLine << endl;
+
+
+    string label2 = "| Deviation within pack: ";
+    cout << left << setw(30) << label2;
+    for (int i=0; i<batteries.size(); i++) {
+        int deviation = PackDeviation(batteries[i]);
+        string headerTitle = to_string(deviation);
+        cout << "| " << left << setw(colWidth) << headerTitle;
+    }
+    cout << "|" << endl;
+    cout << dottedLine << endl;
+
+    string CapacityDifferenceLine = "| Max diff: S" + to_string(difference.smallest+1)+" and S" + to_string(difference.biggest+1)+": "+to_string(difference.difference) + " mAh";
     int spaces2 = length - (int)CapacityDifferenceLine.length()-1;
     string spaces2s(spaces2, ' ');
     cout << CapacityDifferenceLine <<spaces2s<<"|"<< endl;
