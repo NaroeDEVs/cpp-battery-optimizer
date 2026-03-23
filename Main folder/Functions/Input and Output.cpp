@@ -89,8 +89,6 @@ void InputHandling(vector<Battery>& batteries, string filename) {
 
 }
 
-
-
 void Output(vector<Battery> batteries, string topping) {
 
     string dottedLine(55, '=');
@@ -192,7 +190,7 @@ void DeviationOutput(vector<vector<Battery>> & batteries, string preString, int 
 
 
 
-void PacksOutput(vector<vector<Battery>>& batteries, int series, int parallel, vector<int>& packCapacities, string topping, BiggestCapDifference difference) {
+void PacksOutput1(vector<vector<Battery>>& batteries, int series, int parallel, vector<int>& packCapacities, string topping, BiggestCapDifference difference) {
     int colWidth = 9;
     int length = series * (colWidth + 2) + 31;
 
@@ -231,5 +229,31 @@ void PacksOutput(vector<vector<Battery>>& batteries, int series, int parallel, v
     cout << dottedLine << endl;
     cout << CapacityDifferenceLine <<spaces2s<<"|"<< endl;
     cout<<dottedLine << endl;
+}
+
+void PacksOutput2(vector<vector<Battery>>& batteries, int series, int parallel, vector<int>& packCapacities, string topping, BiggestCapDifference difference) {
+    int colWidth = 15;
+    int length = series * (colWidth + +3) + 31;
+
+    string dottedLine(length, '=');
+    string tinierDottedLine(length, '-');
+
+    int mid = (length-topping.length())/2-1;
+    string spaces(mid, ' ');
+    string lineTop = "="+ spaces + topping + spaces + " =";
+
+    vector<int> Ranging(series);
+    iota(Ranging.begin(), Ranging.end(), 1);
+
+    cout << dottedLine << endl;
+    cout << lineTop << endl;
+    cout << dottedLine << endl;
+    cout << endl;
+
+    cout << tinierDottedLine << endl;
+    string lin = "="+ spaces + "PACK S0" + spaces + " =";
+    cout <<tinierDottedLine << endl;
+
+
 }
 

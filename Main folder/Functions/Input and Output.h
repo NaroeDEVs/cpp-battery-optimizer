@@ -24,13 +24,25 @@ void Output(std::vector<Battery> batteries, std::string topping);
 
 void TakeUserInput(int& series, int& parallel);
 
-void PacksOutput(std::vector<std::vector<Battery>>& batteries,
+void PacksOutput1(std::vector<std::vector<Battery>>& batteries,
                  int series,
                  int parallel,
                  std::vector<int>& packCapacities,
                  std::string topping,
                  BiggestCapDifference Difference);
+
+void PacksOutput2(std::vector<std::vector<Battery>>& batteries,
+                 int series,
+                 int parallel,
+                 std::vector<int>& packCapacities,
+                 std::string topping,
+                 BiggestCapDifference Difference);
+
 void InputHandling(std::vector<Battery>& batteries, std::string filename);
 void ConsoleRead(std::vector<Battery>& batteries);
+
+
+
+
 
 #endif // C_BATTERYPACKOPTIMIZER_INPUT_AND_OUTPUT_H

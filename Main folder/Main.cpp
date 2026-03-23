@@ -1,9 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
 #include <fstream>
 #include <iomanip>
-#include <ctime>
 #include <cmath>
 #include <sstream>
 #include <Battery.h>
@@ -47,6 +45,6 @@ int main() {
     BiggestCapDifference Difference;
     BiggestCapacityDifference(PackCapacity, Difference);
 
-    PacksOutput(BatteriesPack, series, parallel, PackCapacity, "Pakuotės", Difference);
+    PacksOutput2(BatteriesPack, series, parallel, PackCapacity, "Pakuotės", Difference);
     return 0;
 }
