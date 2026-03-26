@@ -47,5 +47,7 @@ int main() {
 
     PacksOutput1(BatteriesPack, series, parallel, PackCapacity, "Pakuotės", Difference);
 
+    //Add pack quality measurer (percentage deviation from average), exampl: Great, Good, Average, Bad, Terrible
+
     return 0;
 }
