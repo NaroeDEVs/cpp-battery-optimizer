@@ -110,9 +110,18 @@ void Output(vector<Battery> batteries, string topping) {
 
 void TakeUserInput(int & series, int & parallel) {
     cout<< "Enter series: ";
-    cin >> series;
+    while (!(cin >> series) || series <= 0) {
+        cout << "[Invalid input. Try again] Enter series: ";
+        cin.clear();
+        cin.ignore(10000, '\n');
+    }
+
     cout<< "Enter parallel: ";
-    cin >> parallel;
+    while (!(cin >> parallel) || parallel <= 0) {
+        cout << "[Invalid input. Try again] Enter parallel: ";
+        cin.clear();
+        cin.ignore(10000, '\n');
+    }
 }
 
 string FormedPreString(string input, int lent) {
@@ -253,7 +262,7 @@ void PacksOutput2(vector<vector<Battery>>& batteries, int series, int parallel, 
     cout << tinierDottedLine << endl;
     string lin = "="+ spaces + "PACK S0" + spaces + " =";
     cout <<tinierDottedLine << endl;
-
+    
 
 }
 

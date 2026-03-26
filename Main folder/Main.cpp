@@ -45,6 +45,7 @@ int main() {
     BiggestCapDifference Difference;
     BiggestCapacityDifference(PackCapacity, Difference);
 
-    PacksOutput2(BatteriesPack, series, parallel, PackCapacity, "Pakuotės", Difference);
+    PacksOutput1(BatteriesPack, series, parallel, PackCapacity, "Pakuotės", Difference);
+
     return 0;
 }
