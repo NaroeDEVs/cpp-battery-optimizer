@@ -1,7 +1,5 @@
 #include "Input and Output.h"
-
 #include <algorithm>
-
 #include "Capacity algorithms.h"
 #include <vector>
 #include <iomanip>
