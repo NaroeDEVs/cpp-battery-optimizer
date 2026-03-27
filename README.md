@@ -26,10 +26,9 @@ Project Structure: Ensure your files are organized as follows:
     • Pack Quality Measurer: Implement a grading system (Great, Good, Average, Bad, Terrible) based on the percentage deviation from the average pack capacity.
 📄 Data Format
 The application expects Batteries.csv to be formatted with semicolons as delimiters. 
-
 Example Batteries.csv:
-ID;Capacity(mAh);Manufacturer
 
+ID;Capacity(mAh);Manufacturer
 1;2500;Samsung
 2;2480;Samsung
 3;2510;Sony
