@@ -40,6 +40,7 @@ void PacksOutput2(std::vector<std::vector<Battery>>& batteries,
 
 void InputHandling(std::vector<Battery>& batteries, std::string filename);
 void ConsoleRead(std::vector<Battery>& batteries);
+std::string InputHandling2();
 
 
 

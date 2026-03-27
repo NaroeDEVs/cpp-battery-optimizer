@@ -45,7 +45,13 @@ int main() {
     BiggestCapDifference Difference;
     BiggestCapacityDifference(PackCapacity, Difference);
 
-    PacksOutput1(BatteriesPack, series, parallel, PackCapacity, "Pakuotės", Difference);
+    string outputChoice = InputHandling2();
+    if (outputChoice == "compact") {
+        PacksOutput1(BatteriesPack, series, parallel, PackCapacity, "Pakuotės", Difference);
+    }
+    else if (outputChoice == "detailed") {
+        PacksOutput2(BatteriesPack, series, parallel, PackCapacity, "Pakuotės", Difference);
+    }
 
     //Add pack quality measurer (percentage deviation from average), exampl: Great, Good, Average, Bad, Terrible
 

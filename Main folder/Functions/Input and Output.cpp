@@ -1,4 +1,7 @@
 #include "Input and Output.h"
+
+#include <algorithm>
+
 #include "Capacity algorithms.h"
 #include <vector>
 #include <iomanip>
@@ -240,16 +243,86 @@ void PacksOutput1(vector<vector<Battery>>& batteries, int series, int parallel, 
     cout<<dottedLine << endl;
 }
 
+
+void Liner(vector<string>& words, vector<int>& spaces) {
+    string outputLine = "";
+    for (int i=0; i<words.size(); i++) {
+        string word = words[i];
+        int space = spaces[i];
+        int emptySpace = space - 1 - word.length();
+        if (i == words.size() - 1) {
+            emptySpace -= 1;
+        }
+        int leftPad = emptySpace / 2;
+        int rightPad = emptySpace - leftPad;
+
+        string spacesBefore(leftPad, ' ');
+        string spacesAfter(rightPad, ' ');
+
+        outputLine += "|" + spacesBefore + word + spacesAfter;
+    }
+    outputLine += "|";
+    cout << outputLine << endl;
+}
+
+
+void SinglePackBoard(vector<Battery>& batteries, int series, int parallel, int number, vector<int>& packCapacities, BiggestCapDifference difference) {
+    string tinierDottedLine(120, '-');
+    cout << tinierDottedLine << endl;
+
+    // Header
+    vector<string> words = {"Pack " + to_string(number), "Capacities"};
+    vector<int> spaces = {45, 75};
+    Liner(words, spaces);
+    cout << tinierDottedLine << endl;
+
+    // Columns
+    words = {"Cells", "ID", "Capacity", "Manufacturer"};
+    spaces = {45, 25, 25, 25};
+    Liner(words, spaces);
+    cout << tinierDottedLine << endl;
+
+    // Print each cell in the pack
+    for (int i=0; i<batteries.size(); i++) {
+        Battery battery = batteries[i];
+        words = {"Cell " + to_string(i+1), to_string(battery.id), to_string(battery.capacity), battery.manufacturer};
+        spaces = {45, 25, 25, 25};
+        Liner(words, spaces);
+    }
+    cout << tinierDottedLine << endl;
+
+    words = {"Total Capacity:", to_string(packCapacities[number-1])};
+    spaces = {45, 75}; // Resetting to 2 columns
+    Liner(words, spaces);
+    cout << tinierDottedLine << endl;
+
+    int average = AveragePacksCapacity(packCapacities);
+    int divergence = packCapacities[number-1] - average;
+    string divString = (divergence > 0 ? "+" : "") + to_string(divergence);
+
+    words = {"Divergence from average:", divString};
+    Liner(words, spaces);
+    cout << tinierDottedLine << endl;
+
+    int deviation = PackDeviation(batteries);
+    words = {"Deviation within pack:", to_string(deviation)};
+    Liner(words, spaces);
+    cout << tinierDottedLine << endl;
+
+    cout<<endl;
+    cout<<endl;
+}
+
 void PacksOutput2(vector<vector<Battery>>& batteries, int series, int parallel, vector<int>& packCapacities, string topping, BiggestCapDifference difference) {
-    int colWidth = 15;
-    int length = series * (colWidth + +3) + 31;
+    int colWidth = 25;
+    int length = 120;
 
     string dottedLine(length, '=');
     string tinierDottedLine(length, '-');
 
-    int mid = (length-topping.length())/2-1;
+    int mid = (length-topping.length())/2;
     string spaces(mid, ' ');
-    string lineTop = "="+ spaces + topping + spaces + " =";
+    string lineTop = "="+ spaces + topping + spaces + "=";
 
     vector<int> Ranging(series);
     iota(Ranging.begin(), Ranging.end(), 1);
@@ -259,10 +332,33 @@ void PacksOutput2(vector<vector<Battery>>& batteries, int series, int parallel, 
     cout << dottedLine << endl;
     cout << endl;
 
-    cout << tinierDottedLine << endl;
-    string lin = "="+ spaces + "PACK S0" + spaces + " =";
-    cout <<tinierDottedLine << endl;
-    
 
+
+    for (int i=0; i<batteries.size(); i++) {
+        SinglePackBoard(batteries[i], series, parallel, i+1, packCapacities, difference);
+    }
+}
+
+string InputHandling2() {
+    string result="";
+
+    cout<<"Detailed or compact output? (detailed/compact): ";
+    while (true) {
+        string choice;
+        cin >> choice;
+        if (choice == "detailed") {
+            result = "detailed";
+            break;
+        }
+        else if (choice == "compact") {
+            result = "compact";
+            break;
+        }
+        else {
+            cout << "Invalid choice. Please enter 'detailed' or 'compact': ";
+        }
+    }
+
+    return result;
 }
 
