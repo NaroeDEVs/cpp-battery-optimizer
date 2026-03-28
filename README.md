@@ -31,6 +31,7 @@ Ensure your files are organized as follows:
 
 ## 🗺️ Roadmap (Upcoming Features)
 * **Pack Quality Measurer:** Implement a grading system (Great, Good, Average, Bad, Terrible) based on the percentage deviation from the average pack capacity.
+* **Switcher** Add a secondary layer of pack improvement by manually swithcing batteries between packs, measure capacity difference and thru many iterations try to optimize the packs even more. 
 
 ## 📄 Data Format
 The application expects `Batteries.csv` to be formatted with semicolons as delimiters. 
