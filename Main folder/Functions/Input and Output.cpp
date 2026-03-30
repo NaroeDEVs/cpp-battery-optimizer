@@ -360,3 +360,21 @@ string InputHandling2() {
     return result;
 }
 
+string GradingResult(int percentage) {
+    vector<string> Results = {"Terrible", "Bad", "Average", "Good", "Great"};
+    switch (percentage) {
+        case 0 ... 20:
+            return Results[0];
+        case 21 ... 40:
+            return Results[1];
+        case 41 ... 60:
+            return Results[2];
+        case 61 ... 80:
+            return Results[3];
+        case 81 ... 100:
+            return Results[4];
+        default:
+            return "Invalid percentage";
+    }
+}
+
