@@ -26,7 +26,6 @@ void Zero(vector<int>& batteries, int number) {
     }
 }
 
-
 void BasePackingAlgorithm(vector<Battery>& batteries, int series, int parallel, vector<vector<Battery>>& batteryPacks, vector<int>& packCapacities, vector<int>& numberOfBatteries) {
     packCapacities.resize(series);
     numberOfBatteries.resize(series);
@@ -43,6 +42,7 @@ void BasePackingAlgorithm(vector<Battery>& batteries, int series, int parallel, 
             packCapacities[k] = TotalCapacity(batteryPacks[k]);
             numberOfBatteries[k] = batteryPacks[k].size();
         }
+
     }
 }
 
