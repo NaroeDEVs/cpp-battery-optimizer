@@ -366,16 +366,22 @@ string GradingResult(int percentage) {
     switch (percentage) {
         case 0 ... 20:
             result = Results[0];
+            break;
         case 21 ... 40:
             result = Results[1];
+            break;
         case 41 ... 60:
             result = Results[2];
+            break;
         case 61 ... 80:
             result = Results[3];
+            break;
         case 81 ... 100:
             result = Results[4];
+            break;
         default:
-            result = "Invalidpercentage";
+            result = "Invalid percentage";
+            break;
     }
     return "Pack overall quality: " + result + " (" + to_string(percentage) + "%)";
 }

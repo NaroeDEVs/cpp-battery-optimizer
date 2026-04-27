@@ -14,3 +14,4 @@ int LowestCapacityIndex(std::vector<std::vector<Battery>>& batteries, int parall
 int AveragePacksCapacity(std::vector<int>& batteryPackCapacities);
 int PackDivergence(std::vector<int>& batteryPackCapacities, int average);
 int PackDeviation(std::vector<Battery>& batteries);
+std::string GradingResult(int percentage);
