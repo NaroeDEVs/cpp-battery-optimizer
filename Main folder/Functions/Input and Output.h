@@ -43,7 +43,4 @@ void ConsoleRead(std::vector<Battery>& batteries);
 std::string InputHandling2();
 
 
-
-
-
 #endif // C_BATTERYPACKOPTIMIZER_INPUT_AND_OUTPUT_H
