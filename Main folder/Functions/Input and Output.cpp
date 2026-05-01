@@ -8,51 +8,49 @@
 #include <fstream>
 #include <numeric>
 
-using namespace std;
-
-void Read(string filename, vector<Battery>& batteries) {
-    ifstream reader(filename);
+void Read(const std::string & filename, std::vector<Battery>& batteries) {
+    std::ifstream reader(filename);
     if (!reader.is_open()) {
-        cout << "Error opening file" << endl;
+        std::cout << "Error opening file" << std::endl;
         return;
     }
 
-    string line;
-    getline(reader, line);
-    string idString, mahString, manufacturerString;
+    std::string line;
+    std::getline(reader, line);
+    std::string idString, mahString, manufacturerString;
 
-    while (getline(reader, idString, ';')) {
-        getline(reader, mahString, ';');
-        getline(reader, manufacturerString);
+    while (std::getline(reader, idString, ';')) {
+        std::getline(reader, mahString, ';');
+        std::getline(reader, manufacturerString);
 
         Battery tempBattery;
-        tempBattery.id = stoi(idString);
-        tempBattery.capacity = stoi(mahString);
+        tempBattery.id = std::stoi(idString);
+        tempBattery.capacity = std::stoi(mahString);
         tempBattery.manufacturer = manufacturerString;
         batteries.push_back(tempBattery);
     }
 }
 
-void ConsoleRead(vector<Battery>& batteries) {
+void ConsoleRead(std::vector<Battery>& batteries) {
     int capacity;
-    string manufacturer;
+    std::string manufacturer;
 
     int currentCount = batteries.size();
     int id = currentCount;
 
-    cout << "Enter battery details (capacity manufacturer), or -1 to stop:" << endl;
+    std::cout << "Enter battery details (capacity manufacturer), or -1 to stop:" << std::endl;
     while (true) {
-        cout << "Battery " << id << ": ";
+        std::cout << "Battery " << id << ": ";
 
-        while (!(cin >> capacity)) {
-            cout << "[Invalid input. Try again] Battery "<<id<<": ";
-            cin.clear();
-            cin.ignore(10000, '\n');
+        while (!(std::cin >> capacity)) {
+            std::cout << "[Invalid input. Try again] Battery "<<id<<": ";
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
         }
 
         if (capacity == -1) break;
 
-        cin>>manufacturer;
+        std::cin>>manufacturer;
 
         Battery tempBattery;
         tempBattery.id = id;
@@ -63,326 +61,309 @@ void ConsoleRead(vector<Battery>& batteries) {
     }
 }
 
-void InputHandling(vector<Battery>& batteries, string filename) {
-    string choice;
+void InputHandling(std::vector<Battery>& batteries, const std::string & filename)
+    {
+        std::string choice;
 
-    while (true) {
-        cout<<"Do you want to read from a file or enter data manually or first from file then manually? (file/manual/both) : ";
-        cin >> choice;
-        if (choice =="file") {
-            Read(filename, batteries);
-            break;
-        }
-        else if (choice == "manual") {
-            ConsoleRead(batteries);
-            break;
-        }
-        else if (choice == "both") {
-            Read(filename, batteries);
-            cout << "File data loaded. Now you can enter additional battery details manually." << endl;
-            ConsoleRead(batteries);
-            break;
-        }
-        else {
-            cout << "Invalid choice. Please enter 'file', 'manual', or 'both'." << endl;
-        }
-    }
-
-}
-
-void Output(vector<Battery> batteries, string topping) {
-
-    string dottedLine(55, '=');
-    cout << dottedLine << endl;
-    int mid = (55-topping.length())/2-1;
-    string spaces(mid, ' ');
-
-    string lineTop ="="+ spaces + topping + spaces + "=";
-    cout << lineTop << endl;
-    cout << dottedLine << endl;
-
-    for (int i = 0; i < batteries.size(); i++) {
-        cout<<Formed1(batteries[i].id, batteries[i].capacity, batteries[i].manufacturer)<<endl;
-    }
-    cout << dottedLine << endl;
-    cout<<endl;
-    cout<<endl;
-}
-
-void TakeUserInput(int & series, int & parallel) {
-    cout<< "Enter series: ";
-    while (!(cin >> series) || series <= 0) {
-        cout << "[Invalid input. Try again] Enter series: ";
-        cin.clear();
-        cin.ignore(10000, '\n');
-    }
-
-    cout<< "Enter parallel: ";
-    while (!(cin >> parallel) || parallel <= 0) {
-        cout << "[Invalid input. Try again] Enter parallel: ";
-        cin.clear();
-        cin.ignore(10000, '\n');
-    }
-}
-
-string FormedPreString(string input, int lent) {
-    string line = "| " + input;
-    return "| " + input + string(lent - input.length()-2, ' ');
-}
-
-void NumbersOutput(vector<int> & numbers, string preString, string preString2, int colWith, bool withoutPrestring) {
-    cout<<FormedPreString(preString, 30);
-    for (int i=0; i<numbers.size(); i++) {
-        if (withoutPrestring) {
-            cout << "| " << left << setw(colWith) << numbers[i];
-        }
-        else {
-            string headerTitle = preString2 + to_string(i+1);
-            cout << "| " << left << setw(colWith) << headerTitle;
-        }
-    }
-    cout<<"|" << endl;
-}
-
-void BatteryNumbersOutputFormedLine(vector<Battery> & batteries, string preString, int colWith) {
-    cout<<FormedPreString(preString, 30);
-
-    for (int i=0; i<batteries.size(); i++) {
-        cout<<"| " << left << setw(colWith) << batteries[i].capacity;
-    }
-
-    cout<<"|" << endl;
-}
-
-void BatteriesOutput(vector<vector<Battery>> & batteries, string preString, int colWidth, int parallel, int series) {
-    for (int i=0; i<parallel; i++) {
-        vector<Battery> rowBatteries(series);
-        for (int c=0; c<series; c++) {
-            if (i < batteries[c].size()) {
-                rowBatteries[c] = batteries[c][i];
+        while (true) {
+            std::cout<<"Do you want to read from a file or enter data manually or first from file then manually? (file/manual/both) : ";
+            std::cin >> choice;
+            if (choice =="file") {
+                Read(filename, batteries);
+                break;
+            }
+            else if (choice == "manual") {
+                ConsoleRead(batteries);
+                break;
+            }
+            else if (choice == "both") {
+                Read(filename, batteries);
+                std::cout << "File data loaded. Now you can enter additional battery details manually." << std::endl;
+                ConsoleRead(batteries);
+                break;
             }
             else {
-                rowBatteries[c] = {0, 0, "N/A"};
+                std::cout << "Invalid choice. Please enter 'file', 'manual', or 'both'." << std::endl;
             }
         }
-        BatteryNumbersOutputFormedLine(rowBatteries, preString+to_string(i+1)+":", colWidth);
+
     }
-}
 
-void DivergenceOutput(vector<int> & packCapacities, string preString, int colWidth) {
-
-    cout << left << setw(30) << preString;
-    int average = AveragePacksCapacity(packCapacities);
-
-    for (int c = 0; c<packCapacities.size(); c++) {
-        int divergence = packCapacities[c] - average;
-        string headerTitle;
-
-        if (divergence > 0) {
-            headerTitle = "+" + to_string(divergence);
+    void TakeUserInput(int & series, int & parallel) {
+        std::cout<< "Enter series: ";
+        while (!(std::cin >> series) || series <= 0) {
+            std::cout << "[Invalid input. Try again] Enter series: ";
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
         }
-        else headerTitle = to_string(divergence);
 
-        cout << "| " << left << setw(colWidth) << headerTitle;
-    }
-    cout << "|" << endl;
-}
-
-void DeviationOutput(vector<vector<Battery>> & batteries, string preString, int colWidth) {
-    cout << left << setw(30) << preString;
-    for (int i=0; i<batteries.size(); i++) {
-        int deviation = PackDeviation(batteries[i]);
-        string headerTitle = to_string(deviation);
-        cout << "| " << left << setw(colWidth) << headerTitle;
-    }
-    cout << "|" << endl;
-}
-
-
-
-void PacksOutput1(vector<vector<Battery>>& batteries, int series, int parallel, vector<int>& packCapacities, string topping, BiggestCapDifference difference) {
-    int colWidth = 9;
-    int length = series * (colWidth + 2) + 31;
-
-    string dottedLine(length, '=');
-
-    int mid = (length-topping.length())/2-1;
-    string spaces(mid, ' ');
-    string lineTop = "="+ spaces + topping + spaces + " =";
-
-    vector<int> Ranging(series);
-    iota(Ranging.begin(), Ranging.end(), 1);
-
-    string CapacityDifferenceLine = "| Max diff: S" + to_string(difference.biggest+1)+" and S" + to_string(difference.smallest+1)+": "+to_string(difference.difference) + " mAh";
-    int spaces2 = length - (int)CapacityDifferenceLine.length()-1;
-    string spaces2s(spaces2, ' ');
-
-
-    cout << dottedLine << endl;
-    cout << lineTop << endl;
-
-    cout << dottedLine << endl;
-    NumbersOutput(Ranging, "Pack:", "S", colWidth, false);
-
-    cout<<dottedLine << endl;
-    BatteriesOutput(batteries, "Battery ", colWidth, parallel, series);
-
-    cout << dottedLine << endl;
-    NumbersOutput(packCapacities, "Total Capacity:", "S", colWidth, true);
-
-    cout<< dottedLine << endl;
-    DivergenceOutput(packCapacities, "Divergence from average:", colWidth);
-
-    cout<<dottedLine << endl;
-    DeviationOutput(batteries, "Deviation within pack:", colWidth);
-
-    cout << dottedLine << endl;
-    cout << CapacityDifferenceLine <<spaces2s<<"|"<< endl;
-    cout<<dottedLine << endl;
-}
-
-
-void Liner(vector<string>& words, vector<int>& spaces) {
-    string outputLine = "";
-    for (int i=0; i<words.size(); i++) {
-        string word = words[i];
-        int space = spaces[i];
-        int emptySpace = space - 1 - word.length();
-        if (i == words.size() - 1) {
-            emptySpace -= 1;
+        std::cout<< "Enter parallel: ";
+        while (!(std::cin >> parallel) || parallel <= 0) {
+            std::cout << "[Invalid input. Try again] Enter parallel: ";
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
         }
-        int leftPad = emptySpace / 2;
-        int rightPad = emptySpace - leftPad;
-
-        string spacesBefore(leftPad, ' ');
-        string spacesAfter(rightPad, ' ');
-
-        outputLine += "|" + spacesBefore + word + spacesAfter;
     }
-    outputLine += "|";
-    cout << outputLine << endl;
-}
+
+    std::string FormedPreString(std::string input, int lent) {
+        std::string line = "| " + input;
+        return "| " + input + std::string(lent - input.length()-2, ' ');
+    }
+
+    void NumbersOutput(const std::vector<int> & numbers, std::string preString, std::string preString2, int colWith, bool withoutPrestring) {
+        std::cout<<FormedPreString(preString, 30);
+        for (int i=0; i<numbers.size(); i++) {
+            if (withoutPrestring) {
+                std::cout << "| " << std::left << std::setw(colWith) << numbers[i];
+            }
+            else {
+                std::string headerTitle = preString2 + std::to_string(i+1);
+                std::cout << "| " << std::left << std::setw(colWith) << headerTitle;
+            }
+        }
+        std::cout<<"|" << std::endl;
+    }
+
+    void BatteryNumbersOutputFormedLine(std::vector<Battery> & batteries, std::string preString, int colWith) {
+        std::cout<<FormedPreString(preString, 30);
+
+        for (int i=0; i<batteries.size(); i++) {
+            std::cout<<"| " << std::left << std::setw(colWith) << batteries[i].capacity;
+        }
+
+        std::cout<<"|" << std::endl;
+    }
+
+    void BatteriesOutput(std::vector<std::vector<Battery>> & batteries, std::string preString, int colWidth, int parallel, int series) {
+        for (int i=0; i<parallel; i++) {
+            std::vector<Battery> rowBatteries(series);
+            for (int c=0; c<series; c++) {
+                if (i < batteries[c].size()) {
+                    rowBatteries[c] = batteries[c][i];
+                }
+                else {
+                    rowBatteries[c] = {0, 0, "N/A"};
+                }
+            }
+            BatteryNumbersOutputFormedLine(rowBatteries, preString+std::to_string(i+1)+":", colWidth);
+        }
+    }
+
+    void DivergenceOutput(std::vector<int> & packCapacities, std::string preString, int colWidth) {
+
+        std::cout << std::left << std::setw(30) << preString;
+        int average = AveragePacksCapacity(packCapacities);
+
+        for (int c = 0; c<packCapacities.size(); c++) {
+            int divergence = packCapacities[c] - average;
+            std::string headerTitle;
+
+            if (divergence > 0) {
+                headerTitle = "+" + std::to_string(divergence);
+            }
+            else headerTitle = std::to_string(divergence);
+
+            std::cout << "| " << std::left << std::setw(colWidth) << headerTitle;
+        }
+        std::cout << "|" << std::endl;
+    }
+
+    void DeviationOutput(std::vector<std::vector<Battery>> & batteries, std::string preString, int colWidth) {
+        std::cout << std::left << std::setw(30) << preString;
+        for (int i=0; i<batteries.size(); i++) {
+            int deviation = PackDeviation(batteries[i]);
+            std::string headerTitle = std::to_string(deviation);
+            std::cout << "| " << std::left << std::setw(colWidth) << headerTitle;
+        }
+        std::cout << "|" << std::endl;
+    }
 
 
-void SinglePackBoard(vector<Battery>& batteries, int series, int parallel, int number, vector<int>& packCapacities, BiggestCapDifference difference) {
-    string tinierDottedLine(120, '-');
-    cout << tinierDottedLine << endl;
 
-    // Header
-    vector<string> words = {"Pack " + to_string(number), "Capacities"};
-    vector<int> spaces = {45, 75};
-    Liner(words, spaces);
-    cout << tinierDottedLine << endl;
+    void PacksOutput1(std::vector<std::vector<Battery>>& batteries, int series, int parallel, std::vector<int>& packCapacities, std::string topping, BiggestCapDifference difference) {
+        int colWidth = 9;
+        int length = series * (colWidth + 2) + 31;
 
-    // Columns
-    words = {"Cells", "ID", "Capacity", "Manufacturer"};
-    spaces = {45, 25, 25, 25};
-    Liner(words, spaces);
-    cout << tinierDottedLine << endl;
+        std::string dottedLine(length, '=');
 
-    // Print each cell in the pack
-    for (int i=0; i<batteries.size(); i++) {
-        Battery battery = batteries[i];
-        words = {"Cell " + to_string(i+1), to_string(battery.id), to_string(battery.capacity), battery.manufacturer};
+        int mid = (length-topping.length())/2-1;
+        std::string spaces(mid, ' ');
+        std::string lineTop = "="+ spaces + topping;
+        std::string lineTop2 = std::string(length - lineTop.length() - 1, ' ') + "=";
+        lineTop += lineTop2;
+
+        std::vector<int> Ranging(series);
+        std::iota(Ranging.begin(), Ranging.end(), 1);
+
+        std::string CapacityDifferenceLine = "| Max diff: S" + std::to_string(difference.biggest+1)+" and S" + std::to_string(difference.smallest+1)+": "+std::to_string(difference.difference) + " mAh";
+        int spaces2 = length - (int)CapacityDifferenceLine.length()-1;
+        std::string spaces2s(spaces2, ' ');
+
+
+        std::cout << dottedLine << std::endl;
+        std::cout << lineTop << std::endl;
+
+        std::cout << dottedLine << std::endl;
+        NumbersOutput(Ranging, "Pack:", "S", colWidth, false);
+
+        std::cout<<dottedLine << std::endl;
+        BatteriesOutput(batteries, "Battery ", colWidth, parallel, series);
+
+        std::cout << dottedLine << std::endl;
+        NumbersOutput(packCapacities, "Total Capacity:", "S", colWidth, true);
+
+        std::cout<< dottedLine << std::endl;
+        DivergenceOutput(packCapacities, "Divergence from average:", colWidth);
+
+        std::cout<<dottedLine << std::endl;
+        DeviationOutput(batteries, "Deviation within pack:", colWidth);
+
+        std::cout << dottedLine << std::endl;
+        std::cout << CapacityDifferenceLine <<spaces2s<<"|"<< std::endl;
+        std::cout<<dottedLine << std::endl;
+    }
+
+
+    void Liner(std::vector<std::string>& words, std::vector<int>& spaces) {
+        std::string outputLine = "";
+        for (int i=0; i<words.size(); i++) {
+            std::string word = words[i];
+            int space = spaces[i];
+            int emptySpace = space - 1 - word.length();
+            if (i == words.size() - 1) {
+                emptySpace -= 1;
+            }
+            int leftPad = emptySpace / 2;
+            int rightPad = emptySpace - leftPad;
+
+            std::string spacesBefore(leftPad, ' ');
+            std::string spacesAfter(rightPad, ' ');
+
+            outputLine += "|" + spacesBefore + word + spacesAfter;
+        }
+        outputLine += "|";
+        std::cout << outputLine << std::endl;
+    }
+
+
+    void SinglePackBoard(std::vector<Battery>& batteries, int series, int parallel, int number, std::vector<int>& packCapacities, BiggestCapDifference difference) {
+        std::string tinierDottedLine(120, '-');
+        std::cout << tinierDottedLine << std::endl;
+
+        // Header
+        std::vector<std::string> words = {"Pack " + std::to_string(number), "Capacities"};
+        std::vector<int> spaces = {45, 75};
+        Liner(words, spaces);
+        std::cout << tinierDottedLine << std::endl;
+
+        // Columns
+        words = {"Cells", "ID", "Capacity", "Manufacturer"};
         spaces = {45, 25, 25, 25};
         Liner(words, spaces);
-    }
-    cout << tinierDottedLine << endl;
+        std::cout << tinierDottedLine << std::endl;
 
-    words = {"Total Capacity:", to_string(packCapacities[number-1])};
-    spaces = {45, 75}; // Resetting to 2 columns
-    Liner(words, spaces);
-    cout << tinierDottedLine << endl;
-
-    int average = AveragePacksCapacity(packCapacities);
-    int divergence = packCapacities[number-1] - average;
-    string divString = (divergence > 0 ? "+" : "") + to_string(divergence);
-
-    words = {"Divergence from average:", divString};
-    Liner(words, spaces);
-    cout << tinierDottedLine << endl;
-
-    int deviation = PackDeviation(batteries);
-    words = {"Deviation within pack:", to_string(deviation)};
-    Liner(words, spaces);
-    cout << tinierDottedLine << endl;
-
-    cout<<endl;
-    cout<<endl;
-}
-
-void PacksOutput2(vector<vector<Battery>>& batteries, int series, int parallel, vector<int>& packCapacities, string topping, BiggestCapDifference difference) {
-    int colWidth = 25;
-    int length = 120;
-
-    string dottedLine(length, '=');
-    string tinierDottedLine(length, '-');
-
-    int mid = (length-topping.length())/2;
-    string spaces(mid, ' ');
-    string lineTop = "="+ spaces + topping + spaces + "=";
-
-    vector<int> Ranging(series);
-    iota(Ranging.begin(), Ranging.end(), 1);
-
-    cout << dottedLine << endl;
-    cout << lineTop << endl;
-    cout << dottedLine << endl;
-    cout << endl;
-
-
-
-    for (int i=0; i<batteries.size(); i++) {
-        SinglePackBoard(batteries[i], series, parallel, i+1, packCapacities, difference);
-    }
-}
-
-string InputHandling2() {
-    string result="";
-
-    cout<<"Detailed or compact output? (detailed/compact): ";
-    while (true) {
-        string choice;
-        cin >> choice;
-        if (choice == "detailed") {
-            result = "detailed";
-            break;
+        // Print each cell in the pack
+        for (int i=0; i<batteries.size(); i++) {
+            Battery battery = batteries[i];
+            words = {"Cell " + std::to_string(i+1), std::to_string(battery.id), std::to_string(battery.capacity), battery.manufacturer};
+            spaces = {45, 25, 25, 25};
+            Liner(words, spaces);
         }
-        else if (choice == "compact") {
-            result = "compact";
-            break;
-        }
-        else {
-            cout << "Invalid choice. Please enter 'detailed' or 'compact': ";
+        std::cout << tinierDottedLine << std::endl;
+
+        words = {"Total Capacity:", std::to_string(packCapacities[number-1])};
+        spaces = {45, 75}; // Resetting to 2 columns
+        Liner(words, spaces);
+        std::cout << tinierDottedLine << std::endl;
+
+        int average = AveragePacksCapacity(packCapacities);
+        int divergence = packCapacities[number-1] - average;
+        std::string divString = (divergence > 0 ? "+" : "") + std::to_string(divergence);
+
+        words = {"Divergence from average:", divString};
+        Liner(words, spaces);
+        std::cout << tinierDottedLine << std::endl;
+
+        int deviation = PackDeviation(batteries);
+        words = {"Deviation within pack:", std::to_string(deviation)};
+        Liner(words, spaces);
+        std::cout << tinierDottedLine << std::endl;
+
+        std::cout<<std::endl;
+        std::cout<<std::endl;
+    }
+
+    void PacksOutput2(std::vector<std::vector<Battery>>& batteries, int series, int parallel, std::vector<int>& packCapacities, std::string topping, BiggestCapDifference difference) {
+        int colWidth = 25;
+        int length = 120;
+
+        std::string dottedLine(length, '=');
+        std::string tinierDottedLine(length, '-');
+
+        int mid = (length-topping.length())/2;
+        std::string spaces(mid, ' ');
+        std::string lineTop = "="+ spaces + topping + spaces + "=";
+
+        std::vector<int> Ranging(series);
+        std::iota(Ranging.begin(), Ranging.end(), 1);
+
+        std::cout << dottedLine << std::endl;
+        std::cout << lineTop << std::endl;
+        std::cout << dottedLine << std::endl;
+        std::cout << std::endl;
+
+
+
+        for (int i=0; i<batteries.size(); i++) {
+            SinglePackBoard(batteries[i], series, parallel, i+1, packCapacities, difference);
         }
     }
 
-    return result;
-}
+    std::string InputHandling2() {
+        std::string result="";
 
-string GradingResult(int percentage) {
-    vector<string> Results = {"Terrible", "Bad", "Average", "Good", "Great"};
-    string result;
-    switch (percentage) {
-        case 0 ... 20:
-            result = Results[0];
-            break;
-        case 21 ... 40:
-            result = Results[1];
-            break;
-        case 41 ... 60:
-            result = Results[2];
-            break;
-        case 61 ... 80:
-            result = Results[3];
-            break;
-        case 81 ... 100:
-            result = Results[4];
-            break;
-        default:
-            result = "Invalid percentage";
-            break;
+        std::cout<<"Detailed or compact output? (detailed/compact): ";
+        while (true) {
+            std::string choice;
+            std::cin >> choice;
+            if (choice == "detailed") {
+                result = "detailed";
+                break;
+            }
+            else if (choice == "compact") {
+                result = "compact";
+                break;
+            }
+            else {
+                std::cout << "Invalid choice. Please enter 'detailed' or 'compact': ";
+            }
+        }
+
+        return result;
     }
-    return "Pack overall quality: " + result + " (" + to_string(percentage) + "%)";
-}
 
+    std::string GradingResult(int percentage) {
+        std::vector<std::string> Results = {"Terrible", "Bad", "Average", "Good", "Great"};
+        std::string result;
+        switch (percentage) {
+            case 0 ... 20:
+                result = Results[0];
+                break;
+            case 21 ... 40:
+                result = Results[1];
+                break;
+            case 41 ... 60:
+                result = Results[2];
+                break;
+            case 61 ... 80:
+                result = Results[3];
+                break;
+            case 81 ... 100:
+                result = Results[4];
+                break;
+            default:
+                result = "Invalid percentage";
+                break;
+        }
+        return "Pack overall quality: " + result + " (" + std::to_string(percentage) + "%)";
+    }

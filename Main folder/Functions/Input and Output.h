@@ -8,19 +8,13 @@
 
 #include "../Battery.h"
 
-void Read(std::string filename, std::vector<Battery>& batteries);
+void Read(const std::string & filename,
+                std::vector<Battery>& batteries);
 
-template <typename T1, typename T2, typename T3>
-std::string Formed1(T1 first, T2 second, T3 third) {
-    std::ostringstream oss;
-    oss << "| " << std::left << std::setw(10) << first
-        << " | " << std::left << std::setw(15) << second
-        << " | " << std::left << std::setw(20) << third << " |";
-    return oss.str();
-}
+void ConsoleRead(std::vector<Battery>& batteries);
 
-
-void Output(std::vector<Battery> batteries, std::string topping);
+void InputHandling(std::vector<Battery>& batteries,
+                const std::string & filename);
 
 void TakeUserInput(int& series, int& parallel);
 
@@ -38,9 +32,10 @@ void PacksOutput2(std::vector<std::vector<Battery>>& batteries,
                  std::string topping,
                  BiggestCapDifference Difference);
 
-void InputHandling(std::vector<Battery>& batteries, std::string filename);
-void ConsoleRead(std::vector<Battery>& batteries);
+
+
 std::string InputHandling2();
+
 
 
 #endif // C_BATTERYPACKOPTIMIZER_INPUT_AND_OUTPUT_H

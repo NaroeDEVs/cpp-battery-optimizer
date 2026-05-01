@@ -47,10 +47,10 @@ int main() {
 
     string outputChoice = InputHandling2();
     if (outputChoice == "compact") {
-        PacksOutput1(BatteriesPack, series, parallel, PackCapacity, "Pakuotės", Difference);
+        PacksOutput1(BatteriesPack, series, parallel, PackCapacity, "Packs", Difference);
     }
     else if (outputChoice == "detailed") {
-        PacksOutput2(BatteriesPack, series, parallel, PackCapacity, "Pakuotės", Difference);
+        PacksOutput2(BatteriesPack, series, parallel, PackCapacity, "Packs", Difference);
     }
 
     //Add pack quality measurer (percentage deviation from average), exampl: Great, Good, Average, Bad, Terrible
