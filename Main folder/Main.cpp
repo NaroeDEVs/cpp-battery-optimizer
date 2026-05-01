@@ -56,6 +56,5 @@ int main() {
     //Add pack quality measurer (percentage deviation from average), exampl: Great, Good, Average, Bad, Terrible
     //to do later
 
-    cout<<GradingResult(20);
     return 0;
 }
