@@ -2,6 +2,7 @@
 #include "Capacity algorithms.h"
 #include <vector>
 #include <algorithm>
+#include <limits.h>
 
 using namespace std;
 
@@ -47,7 +48,7 @@ void BasePackingAlgorithm(vector<Battery>& batteries, int series, int parallel, 
 
 void BiggestCapacityDifference(vector<int>& packCapacities, BiggestCapDifference & Difference) {
     int BiggestCapacity=0;
-    int SmallestCapacity=9999999;
+    int SmallestCapacity=INT_MAX;
 
     int smallest, biggest, difference;
     for (int i=0; i<packCapacities.size(); i++) {

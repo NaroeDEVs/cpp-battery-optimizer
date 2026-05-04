@@ -199,7 +199,6 @@ void InputHandling(std::vector<Battery>& batteries, const std::string & filename
         int spaces2 = length - (int)CapacityDifferenceLine.length()-1;
         std::string spaces2s(spaces2, ' ');
 
-
         std::cout << dottedLine << std::endl;
         std::cout << lineTop << std::endl;
 
@@ -250,19 +249,16 @@ void InputHandling(std::vector<Battery>& batteries, const std::string & filename
         std::string tinierDottedLine(120, '-');
         std::cout << tinierDottedLine << std::endl;
 
-        // Header
         std::vector<std::string> words = {"Pack " + std::to_string(number), "Capacities"};
         std::vector<int> spaces = {45, 75};
         Liner(words, spaces);
         std::cout << tinierDottedLine << std::endl;
 
-        // Columns
         words = {"Cells", "ID", "Capacity", "Manufacturer"};
         spaces = {45, 25, 25, 25};
         Liner(words, spaces);
         std::cout << tinierDottedLine << std::endl;
 
-        // Print each cell in the pack
         for (int i=0; i<batteries.size(); i++) {
             Battery battery = batteries[i];
             words = {"Cell " + std::to_string(i+1), std::to_string(battery.id), std::to_string(battery.capacity), battery.manufacturer};
@@ -311,8 +307,6 @@ void InputHandling(std::vector<Battery>& batteries, const std::string & filename
         std::cout << lineTop << std::endl;
         std::cout << dottedLine << std::endl;
         std::cout << std::endl;
-
-
 
         for (int i=0; i<batteries.size(); i++) {
             SinglePackBoard(batteries[i], series, parallel, i+1, packCapacities, difference);
