@@ -15,11 +15,13 @@ int main() {
 
     const string file = "Batteries.csv";
 
-    BatteryPack batteryPack;
+    BatteryPack AllBateries;
 
-    dataHandler.Read(batteryPack);
-    int capacity = batteryPack.GetTotalCapacity();
-    cout << capacity << endl;
+    dataHandler.ReadData(AllBateries);
+
+    int series = dataHandler.GetUserSeries();
+    int parallel = dataHandler.GetUserParallel();
+    cout<<"series: "<<series<<" parallel: "<<parallel<<endl;;
 
     return 0;
 }
