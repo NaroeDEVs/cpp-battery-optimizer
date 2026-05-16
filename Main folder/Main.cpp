@@ -22,6 +22,8 @@ int main() {
     int series = dataHandler.GetUserSeries();
     int parallel = dataHandler.GetUserParallel();
     cout<<"series: "<<series<<" parallel: "<<parallel<<endl;;
+    AllBateries.Sort();
+    AllBateries.OutputAll();
 
     return 0;
 }

@@ -1,6 +1,7 @@
 #ifndef C_BATTERYPACKOPTIMIZER_BATTERY_PACK_H
 #define C_BATTERYPACKOPTIMIZER_BATTERY_PACK_H
 
+#include <algorithm>
 #include <string>
 #include <iostream>
 #include <vector>
@@ -13,8 +14,7 @@ class BatteryPack {
         std::vector<Battery> packs;
 
     public:
-        BatteryPack() {
-
+        BatteryPack(){
         }
 
         void addCell(const Battery & battery) {
@@ -31,6 +31,20 @@ class BatteryPack {
                 totalCapacity += battery.GetCapacity();
             }
             return totalCapacity;
+        }
+
+        void Sort() {
+            std::sort(packs.begin(), packs.end(), std::greater<Battery>());
+        }
+
+        Battery TakeBattery(int index) {
+            return packs[index];
+        }
+
+        void OutputAll() const {
+            for (Battery battery : packs) {
+                std::cout << battery.PrintStatus() << std::endl;
+            }
         }
 };
 

@@ -1,8 +1,9 @@
-#ifndef C_BATTERYPACKOPTIMIZER_BATTERYOPTIMIZER_H
-#define C_BATTERYPACKOPTIMIZER_BATTERYOPTIMIZER_H
+#ifndef C_BATTERYPACKOPTIMIZER_BATTERY_H
+#define C_BATTERYPACKOPTIMIZER_BATTERY_H
 
 #include <string>
 #include <iostream>
+#include <format>
 
 class Battery {
     private:
@@ -19,15 +20,25 @@ class Battery {
             this->condition = cond;
         }
 
-        std::string PrintStatus() {
-            std::string line = "Battery ID: " + std::to_string(id) + ", Capacity: " + std::to_string(capacity) + "mAh, Manufacturer: " + manufacturer + ", Condition: " + condition;
-            return line;
+        std::string PrintStatus() const{
+            return std::format(
+                "Battery ID: {:05} | Capacity: {:4}mAh | Manufacturer: {:<12} | Condition: {}",
+                id, capacity, manufacturer, condition
+            );
         }
 
-        int GetId() { return id; }
-        int GetCapacity() { return capacity; }
-        std::string GetManufacturer() { return manufacturer; }
-        std::string GetCondition() { return condition; }
+        int GetId() const{ return id; }
+        int GetCapacity() const{ return capacity; }
+        std::string GetManufacturer() const{ return manufacturer; }
+        std::string GetCondition() const{ return condition; }
+
+        friend bool operator<(const Battery& lhs, const Battery& rhs) {
+            return lhs.capacity < rhs.capacity;
+        }
+
+        friend bool operator>(const Battery& lhs, const Battery& rhs) {
+            return lhs.capacity > rhs.capacity;
+        }
 };
 
     struct BiggestCapDifference {
