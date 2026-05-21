@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
-
+#include <memory>
 #include "Battery.h"
 #include "Battery.h"
 
@@ -44,6 +44,12 @@ class BatteryPack {
         void OutputAll() const {
             for (Battery battery : packs) {
                 std::cout << battery.PrintStatus() << std::endl;
+            }
+        }
+
+        void ResizeTo(int newSize) {
+            if (newSize < packs.size()) {
+                packs.resize(newSize);
             }
         }
 };

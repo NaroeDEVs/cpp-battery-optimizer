@@ -12,7 +12,15 @@ class Battery {
         std::string manufacturer;
         std::string condition;
 
+
     public:
+        Battery() {
+            id = 0;
+            capacity = 0;
+            manufacturer = "N/A";
+            condition = "N/A";
+        }
+
         Battery(int id, int cap, std::string man, std::string cond = "N/A") {
             this->id = id;
             this->capacity = cap;
