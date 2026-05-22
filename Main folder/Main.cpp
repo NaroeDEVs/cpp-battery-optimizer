@@ -24,6 +24,11 @@ int main() {
     int series = dataHandler.GetUserSeries();
     int parallel = dataHandler.GetUserParallel();
 
+    if (series * parallel > AllBateries.GetCellCount()) {
+        cout<<"Out of bounds!"<<endl;
+        return 0;
+    }
+
     PackManager allPacks;
     allPacks.SetSize(series, parallel);
     allPacks.Pack(AllBateries);

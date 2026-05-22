@@ -73,7 +73,7 @@ private:
             }
             else {
                 std::cin.clear(); // Clear the error
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear the error state and ignore the rest of the input
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 std::cout << "Wrong input! ";
             }
         }
@@ -108,7 +108,14 @@ private:
         return output;
     }
 
-    std::string CompactOutput(const PackManager& packManager) {
+
+    /**
+     * @brief Generates a compact and formatted output of the battery pack's configuration, including the capacities of each cell in the pack,
+     *          the total capacities of each series group, and a summary of key statistics such as
+     *          maximum capacity, minimum capacity, biggest difference, average capacity, and variance percentage.
+     * @param packManager Container for cells
+     */
+    void CompactOutput(const PackManager& packManager) {
         std::string output = "";
 
         int series = packManager.GetSeries();
@@ -137,15 +144,17 @@ private:
         std::string line2 = std::format("| {0:<25}| {1:<{2}} |", "Max capacity:", maxCapacity, len - 25 - 6);
         std::string line3 = std::format("| {0:<25}| {1:<{2}} |", "Min capacity:", minCapacity, len - 25 - 6);
         std::string line4 = std::format("| {0:<25}| {1:<{2}} |", "Biggest Mah difference:", maxCapacity - minCapacity, len - 25 - 6);
+        std::string line5 = std::format("| {0:<25}| {1:<{2}.2f} |", "Average capacity:", packManager.CalculateAverageCapacity(), len - 25 - 6);
+        std::string line6 = std::format("| {0:<25}| {1:<{2}} |", "Variance: ",std::format("{0:.2f}%", packManager.CalculateVariancePercentage()), len - 25 - 6);;
 
         std::cout<<line1<<std::endl;
         std::cout<<dashedLine<<std::endl;
         std::cout<<line2<<std::endl;
         std::cout<<line3<<std::endl;
         std::cout<<line4<<std::endl;
+        std::cout<<line5<<std::endl;
+        std::cout<<line6<<std::endl;
         std::cout<<dashedLine<<std::endl;
-
-        return output;
     }
 };
 

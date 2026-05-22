@@ -62,6 +62,33 @@ public:
         return min;
     }
 
+    int CalculateTotalCapacity() const {
+        int totalCapacity = 0;
+        for (int i = 0; i < seriesCount; i++) {
+            totalCapacity += seriesGroups[i].GetTotalCapacity();
+        }
+        return totalCapacity;
+    }
+
+    double CalculateAverageCapacity() const {
+        int totalCapacity = CalculateTotalCapacity();
+        return static_cast<double>(totalCapacity) / seriesCount;
+    }
+
+    double CalculateVariancePercentage() const {
+        double variance = 0;
+
+        double averageCap = CalculateAverageCapacity();
+
+        auto[min, max] = FindMaxAndMinCapacities();
+        int biggestDifference = max - min;
+
+        variance = static_cast<double>(biggestDifference) / averageCap;
+        return variance * 100;
+    }
+
+
+
 
 
 private:
