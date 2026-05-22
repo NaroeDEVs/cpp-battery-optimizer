@@ -10,6 +10,8 @@
 #include <iostream>
 #include <limits>
 
+#include "PackManager.h"
+
 class DataHandler {
 
 public:
@@ -76,6 +78,13 @@ private:
             }
         }
         return value;
+    }
+
+    std::string CompactOutput(PackManager& packManager) {
+        std::string output = "";
+
+
+        return output;
     }
 
 };

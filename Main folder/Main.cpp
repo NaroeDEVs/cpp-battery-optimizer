@@ -7,6 +7,8 @@
 #include "Battery.h"
 #include "BatteryInventory.h"
 #include "DataHandler.h"
+#include "ParallelGroup.h"
+#include "PackManager.h"
 
 using namespace std;
 
@@ -22,6 +24,9 @@ int main() {
     int series = dataHandler.GetUserSeries();
     int parallel = dataHandler.GetUserParallel();
 
+    PackManager allPacks;
+    allPacks.SetSize(series, parallel);
+    allPacks.Pack(AllBateries);
 
     return 0;
 }
