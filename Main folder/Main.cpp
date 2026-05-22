@@ -5,7 +5,7 @@
 #include <cmath>
 #include <sstream>
 #include "Battery.h"
-#include "BatteryPack.h"
+#include "BatteryInventory.h"
 #include "DataHandler.h"
 
 using namespace std;
@@ -15,7 +15,7 @@ int main() {
 
     const string file = "Batteries.csv";
 
-    BatteryPack AllBateries;
+    BatteryInventory AllBateries;
 
     dataHandler.ReadData(AllBateries);
 

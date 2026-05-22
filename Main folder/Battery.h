@@ -49,10 +49,4 @@ class Battery {
         }
 };
 
-    struct BiggestCapDifference {
-        int smallest = 0;
-        int biggest = 0;
-        int difference = abs(biggest - smallest);
-    };
-
 #endif

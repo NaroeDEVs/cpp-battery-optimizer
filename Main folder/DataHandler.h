@@ -3,7 +3,7 @@
 
 #include <string>
 #include "Battery.h"
-#include "BatteryPack.h"
+#include "BatteryInventory.h"
 #include <fstream>
 #include <sstream>
 #include <vector>
@@ -12,14 +12,12 @@
 
 class DataHandler {
 
-
-
 public:
     DataHandler(std::string sourceFilePath, std::string destinationFilePath) :
         sourceFilePath(sourceFilePath),
         destinationFilePath(destinationFilePath) {}
 
-    void ReadData(BatteryPack& batteryPack) { Read(batteryPack); }
+    void ReadData(BatteryInventory& batteryPack) { Read(batteryPack); }
     int GetUserSeries() { return GetUserInt("series: ");}
     int GetUserParallel() { return GetUserInt("parallel: ");}
 
@@ -28,7 +26,7 @@ private:
     std::string sourceFilePath;
     std::string destinationFilePath;
 
-    void Read(BatteryPack & batteryPack) {
+    void Read(BatteryInventory & batteryPack) {
         std::ifstream reader(sourceFilePath);
         if (!reader.is_open()) {
             std::cout << "Error opening file: " << sourceFilePath << std::endl;
@@ -40,14 +38,10 @@ private:
         while (std::getline(reader, line)) {
             std::istringstream ss(line);
             std::string idStr, capStr, manStr, condStr;
-
-            // These three are mandatory
+            
             if (!std::getline(ss, idStr, ';')) continue;
             if (!std::getline(ss, capStr, ';')) continue;
             if (!std::getline(ss, manStr, ';')) continue;
-
-            // For the last one, just try to read it.
-            // If it's not there, condStr stays empty/default.
             std::getline(ss, condStr, ';');
 
             int id = std::stoi(idStr);
