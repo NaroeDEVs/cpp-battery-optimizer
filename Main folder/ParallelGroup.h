@@ -8,7 +8,7 @@ class ParallelGroup {
     private:
         std::vector<Battery> parallelCells;
     public:
-        ParallelGroup();
+        ParallelGroup() = default;
 
         void AddCell(const Battery& battery) {
             parallelCells.push_back(battery);
@@ -26,7 +26,7 @@ class ParallelGroup {
             std::sort(parallelCells.begin(), parallelCells.end(), std::greater<Battery>());
         }
 
-        Battery TakeCell(int index) {
+        Battery TakeCell(int index) const {
             if (index < 0 || index >= parallelCells.size()) {
                 throw std::out_of_range("index out of range");
             }

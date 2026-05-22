@@ -28,7 +28,7 @@ private:
     }
 
 public:
-    PackManager();
+    PackManager() = default;
 
     void SetSize(int series, int parallel) {
         seriesCount = series;
@@ -50,6 +50,21 @@ public:
                 seriesGroups[groupIndex].AddCell(battery);
             }
         }
+    }
+
+    int GetSeries() const {
+        return seriesCount;
+    }
+    int GetParallel() const {
+        return parallelCount;
+    }
+
+    Battery TakeBattery(int seriesIndex, int parallelIndex) const {
+        return seriesGroups[seriesIndex].TakeCell(parallelIndex);
+    }
+
+    int GetIndexParallelCapacity(int seriesIndex) {
+        return seriesGroups[seriesIndex].GetTotalCapacity();
     }
 
 };

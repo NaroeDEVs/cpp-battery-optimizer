@@ -9,7 +9,6 @@
 #include <vector>
 #include <iostream>
 #include <limits>
-
 #include "PackManager.h"
 
 class DataHandler {
@@ -22,6 +21,7 @@ public:
     void ReadData(BatteryInventory& batteryPack) { Read(batteryPack); }
     int GetUserSeries() { return GetUserInt("series: ");}
     int GetUserParallel() { return GetUserInt("parallel: ");}
+    void CompactCellOutput(const PackManager& packManager) { CompactOutput(packManager); }
 
 
 private:
@@ -80,9 +80,37 @@ private:
         return value;
     }
 
-    std::string CompactOutput(PackManager& packManager) {
+    std::string CellOutput(const PackManager& packManager, int selectedCell) {
+        std::string output= "|";
+        for (int i=0; i<packManager.GetSeries(); i++) {
+            Battery h = packManager.TakeBattery(i, selectedCell);
+            output += std::format(" {:<6}|", h.GetCapacity());
+        }
+        return output;
+    }
+
+    std::string GetCapacitiesOutput(const PackManager& packManager) {
+        std::string output = "|";
+        for (int i=0; i<packManager.GetSeries(); i++) {
+        }
+    }
+
+    std::string CompactOutput(const PackManager& packManager) {
         std::string output = "";
 
+        int series = packManager.GetSeries();
+        int parallel = packManager.GetParallel();
+
+        std::string dummyline = std::format("| {:<25}", "cell " + std::to_string(0)) + CellOutput(packManager, 0);
+        int len = dummyline.length();
+        std::string dashedLine(len, '-');
+
+        std::cout<<dashedLine<<std::endl;
+        for (int i=0; i<parallel; i++) {
+            std::string line = std::format("| {:<25}", "cell " + std::to_string(i)) + CellOutput(packManager, i);
+            std::cout<<line<<std::endl;
+        }
+        std::cout<<dashedLine<<std::endl;
 
         return output;
     }
