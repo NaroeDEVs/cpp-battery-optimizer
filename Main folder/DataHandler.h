@@ -80,6 +80,12 @@ private:
         return value;
     }
 
+    /**
+     * @brief Generates a formatted string output for a specific cell in the battery pack, showing the capacities of the batteries in that cell across all series groups.
+     * @param packManager PackManager container
+     * @param selectedCell The selected row to output
+     * @return
+     */
     std::string CellOutput(const PackManager& packManager, int selectedCell) {
         std::string output= "|";
         for (int i=0; i<packManager.GetSeries(); i++) {
@@ -89,10 +95,17 @@ private:
         return output;
     }
 
+    /**
+     * @brief Generates a formatted string output for the total capacities of each series group in the battery pack, showing the total capacity for each group across all parallel cells.
+     * @param packManager PackManager container
+     * @return
+     */
     std::string GetCapacitiesOutput(const PackManager& packManager) {
         std::string output = "|";
         for (int i=0; i<packManager.GetSeries(); i++) {
+            output += std::format(" {:<6}|", packManager.GetIndexParallelCapacity(i));
         }
+        return output;
     }
 
     std::string CompactOutput(const PackManager& packManager) {
@@ -110,11 +123,30 @@ private:
             std::string line = std::format("| {:<25}", "cell " + std::to_string(i)) + CellOutput(packManager, i);
             std::cout<<line<<std::endl;
         }
+
+        std::cout<<dashedLine<<std::endl;
+        std::string allCapacitiesLine = std::format("| {:<25}", "Total capacities:") + GetCapacitiesOutput(packManager);
+        std::cout<<allCapacitiesLine<<std::endl;
+        std::cout<<dashedLine<<std::endl;
+
+
+        int maxCapacity = packManager.MaxCapacity();
+        int minCapacity = packManager.MinCapacity();
+        std::string wordSummary = "Summary";
+        std::string line1 = std::format("| {:^{}} |", wordSummary, len - 4);
+        std::string line2 = std::format("| {0:<25}| {1:<{2}} |", "Max capacity:", maxCapacity, len - 25 - 6);
+        std::string line3 = std::format("| {0:<25}| {1:<{2}} |", "Min capacity:", minCapacity, len - 25 - 6);
+        std::string line4 = std::format("| {0:<25}| {1:<{2}} |", "Biggest Mah difference:", maxCapacity - minCapacity, len - 25 - 6);
+
+        std::cout<<line1<<std::endl;
+        std::cout<<dashedLine<<std::endl;
+        std::cout<<line2<<std::endl;
+        std::cout<<line3<<std::endl;
+        std::cout<<line4<<std::endl;
         std::cout<<dashedLine<<std::endl;
 
         return output;
     }
-
 };
 
 

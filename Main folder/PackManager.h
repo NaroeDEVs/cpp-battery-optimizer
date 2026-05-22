@@ -8,25 +8,10 @@
 #include <BatteryInventory.h>
 #include <Battery.h>
 #include "ParallelGroup.h"
+#include "limits.h"
+#include <tuple>
 
 class PackManager {
-private:
-    std::vector<ParallelGroup> seriesGroups;
-    int seriesCount;
-    int parallelCount;
-
-    int GetLowestCapacityGroupIndex() {
-        int capacity = INT32_MAX;
-        int index = -1;
-        for (int i = 0; i < seriesCount; i++) {
-            if (seriesGroups[i].GetTotalCapacity() < capacity && seriesGroups[i].GetCellCount() < parallelCount) {
-                capacity = seriesGroups[i].GetTotalCapacity();
-                index = i;
-            }
-        }
-        return index;
-    }
-
 public:
     PackManager() = default;
 
@@ -63,10 +48,54 @@ public:
         return seriesGroups[seriesIndex].TakeCell(parallelIndex);
     }
 
-    int GetIndexParallelCapacity(int seriesIndex) {
+    int GetIndexParallelCapacity(int seriesIndex) const {
         return seriesGroups[seriesIndex].GetTotalCapacity();
     }
 
+    int MaxCapacity() const {
+        auto[min, max] = FindMaxAndMinCapacities();
+        return max;
+    }
+
+    int MinCapacity() const {
+        auto[min, max] = FindMaxAndMinCapacities();
+        return min;
+    }
+
+
+
+private:
+    std::vector<ParallelGroup> seriesGroups;
+    int seriesCount;
+    int parallelCount;
+
+
+    int GetLowestCapacityGroupIndex() {
+        int capacity = INT32_MAX;
+        int index = -1;
+        for (int i = 0; i < seriesCount; i++) {
+            if (seriesGroups[i].GetTotalCapacity() < capacity && seriesGroups[i].GetCellCount() < parallelCount) {
+                capacity = seriesGroups[i].GetTotalCapacity();
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    std::tuple<int, int> FindMaxAndMinCapacities() const {
+        int currentMin = INT_MAX;
+        int currentMax = INT_MIN;
+        for (int i = 0; i < seriesCount; i++) {
+            int totalCap = seriesGroups[i].GetTotalCapacity();
+            if (totalCap < currentMin) {
+                currentMin = totalCap;
+            }
+            if (totalCap > currentMax) {
+                currentMax = totalCap;
+            }
+        }
+        return {currentMin, currentMax};
+    }
 };
 
 #endif
