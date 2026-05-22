@@ -133,8 +133,8 @@ private:
     std::tuple<int, int> FindMaxAndMinCapacitiesIndexes() const {
         int currentMin = INT_MAX;
         int currentMax = INT_MIN;
-        int minIndex = 1;
-        int maxIndex = 0;
+        int minIndex = -1;
+        int maxIndex = -1;
 
         for (int i = 0; i < seriesCount; i++) {
             int totalCap = seriesGroups[i].GetTotalCapacity();
