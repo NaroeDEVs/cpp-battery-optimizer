@@ -30,9 +30,14 @@ int main() {
     }
 
     PackManager allPacks;
+
     allPacks.SetSize(series, parallel);
     allPacks.Pack(AllBateries);
-    dataHandler.CompactCellOutput(allPacks);
+    dataHandler.CompactCellOutput(allPacks, "Initial base optimization");
+
+    allPacks.HillClimbOptimization();
+    dataHandler.CompactCellOutput(allPacks, "After hill climbing optimization");
+
 
     return 0;
 }

@@ -21,7 +21,8 @@ public:
     void ReadData(BatteryInventory& batteryPack) { Read(batteryPack); }
     int GetUserSeries() { return GetUserInt("series: ");}
     int GetUserParallel() { return GetUserInt("parallel: ");}
-    void CompactCellOutput(const PackManager& packManager) { CompactOutput(packManager); }
+    int GetUserLevelOfOptimization() { return GetUserInt("Level of optimization: ");}
+    void CompactCellOutput(const PackManager& packManager, std::string topping) { CompactOutput(packManager, topping); }
 
 
 private:
@@ -115,7 +116,7 @@ private:
      *          maximum capacity, minimum capacity, biggest difference, average capacity, and variance percentage.
      * @param packManager Container for cells
      */
-    void CompactOutput(const PackManager& packManager) {
+    void CompactOutput(const PackManager& packManager, std::string topping) {
         std::string output = "";
 
         int series = packManager.GetSeries();
@@ -124,7 +125,10 @@ private:
         std::string dummyline = std::format("| {:<25}", "cell " + std::to_string(0)) + CellOutput(packManager, 0);
         int len = dummyline.length();
         std::string dashedLine(len, '-');
+        std::string topLine = std::format("| {:^{}} |", topping, len - 4);
 
+        std::cout<<dashedLine<<std::endl;
+        std::cout<<topLine<<std::endl;
         std::cout<<dashedLine<<std::endl;
         for (int i=0; i<parallel; i++) {
             std::string line = std::format("| {:<25}", "cell " + std::to_string(i)) + CellOutput(packManager, i);
@@ -155,6 +159,7 @@ private:
         std::cout<<line5<<std::endl;
         std::cout<<line6<<std::endl;
         std::cout<<dashedLine<<std::endl;
+        std::cout<<std::endl;
     }
 };
 

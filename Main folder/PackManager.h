@@ -77,25 +77,31 @@ public:
 
     double CalculateVariancePercentage() const {
         double variance = 0;
-
         double averageCap = CalculateAverageCapacity();
-
         auto[min, max] = FindMaxAndMinCapacities();
         int biggestDifference = max - min;
-
         variance = static_cast<double>(biggestDifference) / averageCap;
         return variance * 100;
     }
 
+    void HillClimbOptimization() {
+        while (true) {
+            auto [min, max] = FindMaxAndMinCapacitiesIndexes();
 
-
-
+            if (min == -1 || max == -1 || min == max) {
+                break;
+            }
+            bool madeImprovement = OptimizeParallelGroups(seriesGroups[min], seriesGroups[max]);
+            if (!madeImprovement) {
+                break;
+            }
+        }
+    }
 
 private:
     std::vector<ParallelGroup> seriesGroups;
     int seriesCount;
     int parallelCount;
-
 
     int GetLowestCapacityGroupIndex() {
         int capacity = INT32_MAX;
@@ -123,6 +129,62 @@ private:
         }
         return {currentMin, currentMax};
     }
+
+    std::tuple<int, int> FindMaxAndMinCapacitiesIndexes() const {
+        int currentMin = INT_MAX;
+        int currentMax = INT_MIN;
+        int minIndex = 1;
+        int maxIndex = 0;
+
+        for (int i = 0; i < seriesCount; i++) {
+            int totalCap = seriesGroups[i].GetTotalCapacity();
+            if (totalCap < currentMin) {
+                currentMin = totalCap;
+                minIndex = i;
+            }
+            if (totalCap > currentMax) {
+                currentMax = totalCap;
+                maxIndex = i;
+            }
+        }
+        return {minIndex, maxIndex};
+    }
+
+    int CapacityDifference(int cap1, int cap2) const {
+        return abs(cap1 - cap2);
+    }
+    bool OptimizeParallelGroups(ParallelGroup& parallelGroup1, ParallelGroup& parallelGroup2) {
+        int bestDelta = CapacityDifference(parallelGroup1.GetTotalCapacity(), parallelGroup2.GetTotalCapacity());
+        int bestI = -1;
+        int bestJ = -1;
+
+        for (int i = 0; i < parallelGroup1.GetCellCount(); i++) {
+            int cap1 = parallelGroup1.TakeCell(i).GetCapacity();
+            for (int j = 0; j < parallelGroup2.GetCellCount(); j++) {
+                int cap2 = parallelGroup2.TakeCell(j).GetCapacity();
+                int hypotheticalCap1 = parallelGroup1.GetTotalCapacity() - cap1 + cap2;
+                int hypotheticalCap2 = parallelGroup2.GetTotalCapacity() - cap2 + cap1;
+                int hypotheticalDelta = CapacityDifference(hypotheticalCap1, hypotheticalCap2);
+
+                if (hypotheticalDelta < bestDelta) {
+                    bestDelta = hypotheticalDelta;
+                    bestI = i;
+                    bestJ = j;
+                }
+            }
+        }
+        if (bestI != -1 && bestJ != -1) {
+            Battery cell1 = parallelGroup1.TakeCell(bestI);
+            Battery cell2 = parallelGroup2.TakeCell(bestJ);
+
+            parallelGroup1.SetCell(bestI, cell2);
+            parallelGroup2.SetCell(bestJ, cell1);
+            return true;
+        }
+
+        return false;
+    }
 };
+
 
 #endif
