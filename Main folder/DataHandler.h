@@ -26,6 +26,11 @@ private:
     std::string sourceFilePath;
     std::string destinationFilePath;
 
+    /**
+     * @brief Reads battery data from a CSV file and populates the provided BatteryInventory object with the data.
+     *          The method handles file opening, reading line by line, parsing the CSV format, and creating Battery objects to be added to the inventory.
+     * @param batteryPack - Battery inventory to be filled with the data from the file
+     */
     void Read(BatteryInventory & batteryPack) {
         std::ifstream reader(sourceFilePath);
         if (!reader.is_open()) {

@@ -26,8 +26,23 @@ class ParallelGroup {
             std::sort(parallelCells.begin(), parallelCells.end(), std::greater<Battery>());
         }
 
+        Battery TakeCell(int index) {
+            if (index < 0 || index >= parallelCells.size()) {
+                throw std::out_of_range("index out of range");
+            }
+            return parallelCells[index];
+        }
 
+        void SetCell(int index, const Battery& battery) {
+            if (index < 0 || index >= parallelCells.size()) {
+                throw std::out_of_range("Index out of range");
+            }
+            parallelCells[index] = battery;
+        }
 
+        int GetCellCount() const {
+            return parallelCells.size();
+        }
 };
 
 

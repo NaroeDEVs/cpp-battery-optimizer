@@ -28,7 +28,7 @@ class BatteryInventory {
             std::sort(cells.begin(), cells.end(), std::greater<Battery>());
         }
 
-        Battery TakeBattery(int index) {
+        Battery GetBattery(int index) {
             return cells[index];
         }
 
