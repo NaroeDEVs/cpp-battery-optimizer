@@ -21,12 +21,18 @@ public:
         seriesGroups.resize(seriesCount);
     }
 
-    /**
-     * @brief Packs the battery cells into the series groups by selecting the best available cells from the inventory and adding them to the
-     *            group with the lowest total capacity until all groups are filled or there are no more cells left.
-     * @param batteryInventory All battery cells
-     */
-    void Pack(BatteryInventory& batteryInventory) {
+
+    void PackWithoutOptimization(BatteryInventory& batteryInventory) {
+        int k = 0;
+        for (int i=0; i<seriesCount; i++) {
+            for (int j=0; j<parallelCount; j++) {
+                seriesGroups[i].AddCell(batteryInventory.GetBattery(k));
+                k++;
+            }
+        }
+    }
+
+    void PackWithOptimization(BatteryInventory& batteryInventory) {
         std::vector<Battery> bestCells = batteryInventory.GetTopCells(seriesCount * parallelCount);
         for (int i = 0; i < seriesCount*parallelCount; i++) {
             Battery battery = bestCells[i];
@@ -40,6 +46,7 @@ public:
     int GetSeries() const {
         return seriesCount;
     }
+
     int GetParallel() const {
         return parallelCount;
     }
@@ -103,7 +110,7 @@ private:
     int seriesCount;
     int parallelCount;
 
-    int GetLowestCapacityGroupIndex() {
+    int GetLowestCapacityGroupIndex() const {
         int capacity = INT32_MAX;
         int index = -1;
         for (int i = 0; i < seriesCount; i++) {

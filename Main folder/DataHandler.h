@@ -56,7 +56,7 @@ private:
             int capacity = std::stoi(capStr);
 
             Battery battery(id, capacity, manStr, condStr.empty() ? "N/A" : condStr);
-            batteryPack.addCell(battery);
+            batteryPack.AddCell(battery);
         }
     }
 

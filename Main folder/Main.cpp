@@ -20,6 +20,7 @@ int main() {
     BatteryInventory AllBateries;
 
     dataHandler.ReadData(AllBateries);
+    bool areUnique = AllBateries.CheckIfAnyBatteryIsUnique();
 
     int series = dataHandler.GetUserSeries();
     int parallel = dataHandler.GetUserParallel();
@@ -31,13 +32,19 @@ int main() {
 
     PackManager allPacks;
 
-    allPacks.SetSize(series, parallel);
-    allPacks.Pack(AllBateries);
-    dataHandler.CompactCellOutput(allPacks, "Initial base optimization");
+    if (areUnique) {
+        allPacks.SetSize(series, parallel);
+        allPacks.PackWithOptimization(AllBateries);
+        dataHandler.CompactCellOutput(allPacks, "Initial base optimization");
 
-    allPacks.HillClimbOptimization();
-    dataHandler.CompactCellOutput(allPacks, "After hill climbing optimization");
-
+        allPacks.HillClimbOptimization();
+        dataHandler.CompactCellOutput(allPacks, "After hill climbing optimization");
+    }
+    else {
+        allPacks.SetSize(series, parallel);
+        allPacks.PackWithoutOptimization(AllBateries);
+        dataHandler.CompactCellOutput(allPacks, "Packs output");
+    }
 
     return 0;
 }

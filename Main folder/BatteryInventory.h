@@ -9,30 +9,31 @@
 #include "Battery.h"
 #include "Battery.h"
 
+// Represents a battery inventory.
 class BatteryInventory {
-    private:
-        std::vector<Battery> cells;
 
     public:
         BatteryInventory() {}
 
-        void addCell(const Battery & battery) {
+        void AddCell(const Battery& battery) {addCellToInventory(battery);}
+        int GetCellCount() const {return cells.size();}
+        void Sort() {std::sort(cells.begin(), cells.end(), std::greater<Battery>());}
+        Battery GetBattery(int index) {return cells[index];}
+        std::vector<Battery> GetTopCells(int numBatteries){return GetTopCells(numBatteries);};
+        bool CheckIfAnyBatteryIsUnique() {return uniqueCells;}
+
+    private:
+        std::vector<Battery> cells;
+        bool uniqueCells = false;
+
+        void addCellToInventory(const Battery & battery) {
             cells.push_back(battery);
+            if (!uniqueCells && cells.size()>0 && cells[0].GetCapacity() != battery.GetCapacity()) {
+                uniqueCells = true;
+            }
         }
 
-        int GetCellCount() const {
-            return cells.size();
-        }
-
-        void Sort() {
-            std::sort(cells.begin(), cells.end(), std::greater<Battery>());
-        }
-
-        Battery GetBattery(int index) {
-            return cells[index];
-        }
-
-        std::vector<Battery> GetTopCells(int numBatteries) {
+        std::vector<Battery> GetTopSortedCells(int numBatteries) {
             Sort();
             int minCount = std::min(numBatteries, GetCellCount());
             return std::vector<Battery>(cells.begin(), cells.begin() + minCount);

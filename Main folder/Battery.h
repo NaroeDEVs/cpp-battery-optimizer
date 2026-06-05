@@ -5,14 +5,8 @@
 #include <iostream>
 #include <format>
 
+// Represents a single battery cell.
 class Battery {
-    private:
-        int id;
-        int capacity;
-        std::string manufacturer;
-        std::string condition;
-
-
     public:
         Battery() {
             id = 0;
@@ -28,24 +22,30 @@ class Battery {
             this->condition = cond;
         }
 
-        std::string PrintStatus() const{
-            return std::format(
-                "Battery ID: {:05} | Capacity: {:4}mAh | Manufacturer: {:<12} | Condition: {}",
-                id, capacity, manufacturer, condition
-            );
-        }
-
+        std::string PrintStatus() const { return Status(); }
         int GetId() const{ return id; }
         int GetCapacity() const{ return capacity; }
         std::string GetManufacturer() const{ return manufacturer; }
         std::string GetCondition() const{ return condition; }
 
         friend bool operator<(const Battery& lhs, const Battery& rhs) {
-            return lhs.capacity < rhs.capacity;
-        }
-
+                return lhs.capacity < rhs.capacity;
+            }
         friend bool operator>(const Battery& lhs, const Battery& rhs) {
-            return lhs.capacity > rhs.capacity;
+                return lhs.capacity > rhs.capacity;
+            }
+
+    private:
+        int id;
+        int capacity;
+        std::string manufacturer;
+        std::string condition;
+
+        std::string Status() const{
+            return std::format(
+                "Battery ID: {:05} | Capacity: {:4}mAh | Manufacturer: {:<12} | Condition: {}",
+                id, capacity, manufacturer, condition
+            );
         }
 };
 
