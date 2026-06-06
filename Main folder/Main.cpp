@@ -39,11 +39,14 @@ int main() {
 
         allPacks.HillClimbOptimization();
         dataHandler.CompactCellOutput(allPacks, "After hill climbing optimization");
+        dataHandler.DetailedCellOutput(allPacks, "Detailed cell output");
     }
     else {
         allPacks.SetSize(series, parallel);
         allPacks.PackWithoutOptimization(AllBateries);
         dataHandler.CompactCellOutput(allPacks, "Packs output");
+        dataHandler.DetailedCellOutput(allPacks, "Detailed cell output");
+
     }
 
     return 0;

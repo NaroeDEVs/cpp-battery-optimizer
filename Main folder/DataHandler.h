@@ -93,6 +93,24 @@ public:
         std::cout<<std::endl;
     }
 
+    void DetailedCellOutput(const PackManager& packManager, const std::string & topping) {
+        std::string output = "";
+        int series = packManager.GetSeries();
+        int parallel = packManager.GetParallel();
+
+        int totalLen = 120;
+        std::string dashedLine(totalLen, '-');
+        std::string topLine = std::format("| {:^{}} |", topping, totalLen - 4);
+
+        std::cout<<dashedLine<<std::endl;
+        std::cout<<topLine<<std::endl;
+        std::cout<<dashedLine<<std::endl<<std::endl;
+
+        for (int i=0; i<series; i++) {
+            OutputCellParallelBlock(packManager, totalLen, i);
+        }
+    }
+
 
 private:
     std::string sourceFilePath;
@@ -130,7 +148,31 @@ private:
         }
         return output;
     }
+
+    void OutputCellParallelBlock(const PackManager& packManager, int toppingLen, int selectedBlock) {
+        std::string dashedLine(toppingLen, '-');
+        std::string topLine = std::format("| {:^{}} |", "Block " + std::to_string(selectedBlock), toppingLen - 4);
+
+        std::cout << std::endl;
+        std::cout << dashedLine << std::endl;
+        std::cout << topLine << std::endl;
+        std::cout << dashedLine << std::endl;
+
+        std::string rawHeader = std::format("{:<17} | {:<17} | {:<26} | {}", "Battery ID", "Capacity (mAh)", "Manufacturer", "Condition");
+        std::string headerLine = std::format("| {:<{}} |", rawHeader, toppingLen - 4);
+        std::cout << headerLine << std::endl;
+        std::cout << dashedLine << std::endl;
+
+        for (int i = 0; i < packManager.GetParallel(); i++) {
+            Battery h = packManager.TakeBattery(selectedBlock, i);
+            std::string rowLine = std::format("| {:<{}} |", h.PrintStatus(), toppingLen - 4);
+            std::cout << rowLine << std::endl;
+        }
+
+        std::cout << dashedLine << std::endl;
+    }
 };
+
 
 
 #endif //C_BATTERYPACKOPTIMIZER_DATAHANDLER_H

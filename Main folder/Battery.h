@@ -43,7 +43,7 @@ class Battery {
 
         std::string Status() const{
             return std::format(
-                "Battery ID: {:05} | Capacity: {:4}mAh | Manufacturer: {:<12} | Condition: {}",
+                "{:<17} | {:<17} | {:<26} | {} ",
                 id, capacity, manufacturer, condition
             );
         }

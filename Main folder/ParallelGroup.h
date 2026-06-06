@@ -1,7 +1,6 @@
 #ifndef C_BATTERYPACKOPTIMIZER_PARALLELGROUP_H
 #define C_BATTERYPACKOPTIMIZER_PARALLELGROUP_H
 #include <vector>
-
 #include "Battery.h"
 
 class ParallelGroup {

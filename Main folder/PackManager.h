@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <BatteryInventory.h>
-#include <Battery.h>
+#include "BatteryInventory.h"
+#include "Battery.h"
 #include "ParallelGroup.h"
 #include "limits.h"
 #include <tuple>
