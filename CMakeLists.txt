@@ -1,23 +1,9 @@
-cmake_minimum_required(VERSION 4.1)
-project(C_BatteryPackOptimizer)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-include_directories("Main folder")
-
+# Tell CMake exactly where your new files live
 add_executable(C_BatteryPackOptimizer
         "Main folder/Main.cpp"
         "Main folder/Battery.h"
-        #"Main folder/Functions/Capacity algorithms.cpp"
-        #"Main folder/Functions/Capacity algorithms.h"
-        #"Main folder/Functions/Input and Output.cpp"
-        #"Main folder/Functions/Input and Output.h"
-        #"Main folder/Functions/Packing Algorithms.cpp"
-        #"Main folder/Functions/Packing Algorithms.h"
         "Main folder/BatteryInventory.h"
-        "Main folder/PackManager.h"
         "Main folder/DataHandler.h"
+        "Main folder/PackManager.h"
         "Main folder/ParallelGroup.h"
-        "Main folder/Functions/Capacity algorithms.cpp"
 )
