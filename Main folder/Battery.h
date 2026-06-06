@@ -15,7 +15,7 @@ class Battery {
             condition = "N/A";
         }
 
-        Battery(int id, int cap, std::string man, std::string cond = "N/A") {
+        Battery(int id, int cap, const std::string & man, const std::string & cond = "N/A") {
             this->id = id;
             this->capacity = cap;
             this->manufacturer = man;

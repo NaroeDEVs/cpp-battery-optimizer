@@ -15,29 +15,34 @@ class BatteryInventory {
     public:
         BatteryInventory() {}
 
-        void AddCell(const Battery& battery) {addCellToInventory(battery);}
-        int GetCellCount() const {return cells.size();}
-        void Sort() {std::sort(cells.begin(), cells.end(), std::greater<Battery>());}
-        Battery GetBattery(int index) {return cells[index];}
-        std::vector<Battery> GetTopCells(int numBatteries){return GetTopCells(numBatteries);};
-        bool CheckIfAnyBatteryIsUnique() {return uniqueCells;}
-
-    private:
-        std::vector<Battery> cells;
-        bool uniqueCells = false;
-
-        void addCellToInventory(const Battery & battery) {
+        // Function to push Battery cell object to cells vector, updates uniqueCells bool variable.
+        void AddCell(const Battery& battery) {
             cells.push_back(battery);
             if (!uniqueCells && cells.size()>0 && cells[0].GetCapacity() != battery.GetCapacity()) {
                 uniqueCells = true;
             }
         }
 
-        std::vector<Battery> GetTopSortedCells(int numBatteries) {
+        int GetCellCount() const {return cells.size();}
+
+        // Sorts in descending order by capacity.
+        void Sort() {std::sort(cells.begin(), cells.end(), std::greater<Battery>());}
+
+        Battery GetBattery(int index) {return cells[index];}
+
+        // Returns vector of top best by capacity cells (count numBatteries).
+        std::vector<Battery> GetTopCells(int numBatteries) {
             Sort();
             int minCount = std::min(numBatteries, GetCellCount());
             return std::vector<Battery>(cells.begin(), cells.begin() + minCount);
         }
+
+        // Returns false if atleast one battery is different from others
+        bool CheckIfAnyBatteryIsUnique() {return uniqueCells;}
+
+    private:
+        std::vector<Battery> cells;
+        bool uniqueCells = false;
 };
 
 #endif
