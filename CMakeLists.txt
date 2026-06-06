@@ -19,4 +19,5 @@ add_executable(C_BatteryPackOptimizer
         "Main folder/PackManager.h"
         "Main folder/DataHandler.h"
         "Main folder/ParallelGroup.h"
+        "Main folder/Functions/Capacity algorithms.cpp"
 )
