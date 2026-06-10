@@ -15,9 +15,11 @@ class PackManager {
 public:
     PackManager() = default;
 
-    void SetSize(int series, int parallel) {
+    void SetSize(const int & series, const int & parallel, const double & nominalVoltage, const double & totalPackVoltage) {
         seriesCount = series;
         parallelCount = parallel;
+        nominalCellVoltage = nominalVoltage;
+        totalVoltage = totalPackVoltage;
         seriesGroups.resize(seriesCount);
     }
 
@@ -109,6 +111,8 @@ private:
     std::vector<ParallelGroup> seriesGroups;
     int seriesCount;
     int parallelCount;
+    double nominalCellVoltage;
+    double totalVoltage;
 
     int GetLowestCapacityGroupIndex() const {
         int capacity = INT32_MAX;

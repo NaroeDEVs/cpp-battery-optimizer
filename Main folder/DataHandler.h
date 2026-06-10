@@ -111,6 +111,15 @@ public:
         }
     }
 
+    std::string GetUserStringInput(const std::string & prompt, const std::string & allowedCharacters) {
+        return GetUserString(prompt, allowedCharacters);
+    }
+
+    double GetUserDoubleInput(const std::string & prompt) {
+        return GetUserDouble(prompt);
+
+    }
+
 
 private:
     std::string sourceFilePath;
@@ -124,12 +133,46 @@ private:
                 return value;
             }
             else {
-                std::cin.clear(); // Clear the error
+                std::cin.clear();
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 std::cout << "Wrong input! ";
             }
         }
         return value;
+    }
+
+    std::string GetUserString(const std::string prompt, const std::string allowedCharacters) {
+        while (true) {
+            std::cout << prompt;
+            if (std::cin) {
+                std::string input;
+                std::cin >> input;
+                bool isValid = true;
+                for (char c : input) {
+                    if (allowedCharacters.find(c) == std::string::npos) {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (isValid) {
+                    return input;
+                }
+            }
+        }
+    }
+
+    double GetUserDouble(const std::string prompt) {
+        double value = 0;
+        while (true) {
+            std::cout << prompt;
+            if (std::cin >> value) {
+                return value;
+            } else {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Wrong input! ";
+            }
+        }
     }
 
     std::string CellOutput(const PackManager& packManager, int selectedCell) {
