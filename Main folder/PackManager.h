@@ -21,13 +21,10 @@ public:
         seriesGroups.resize(seriesCount);
     }
 
-    void SetVoltages(const double & maxCellVoltage, const double & minCellVoltage, const double & nominalCell, const double & totalPackVoltage) {
-        MaxCellVoltage = maxCellVoltage;
-        MinCellVoltage = minCellVoltage;
-        nominalCellVoltage = nominalCell;
-        totalMaxVoltage = totalPackVoltage;
+    void SetVoltages(const double & NominalCellVoltage, const double & MaxSingleCellVoltage) {
+        nominalCellVoltage = NominalCellVoltage;
+        maxSingleCellVoltage = MaxSingleCellVoltage;
     }
-
 
     void PackWithoutOptimization(BatteryInventory& batteryInventory) {
         int k = 0;
@@ -59,7 +56,7 @@ public:
     }
 
     Battery TakeBattery(int seriesIndex, int parallelIndex) const {
-        return seriesGroups[seriesIndex].TakeCell(parallelIndex);
+        return seriesGroups[seriesIndex].GetCell(parallelIndex);
     }
 
     int GetIndexParallelCapacity(int seriesIndex) const {
@@ -98,14 +95,17 @@ public:
         return variance * 100;
     }
 
-    double CalculateTotalPackEnergy() const {
-        double AverageCapacity = CalculateAverageCapacity();
-        double totalCapacity = AverageCapacity * seriesCount;
-
-        return totalCapacity;
+    int GetUsablePackCapacity() const {
+        return MinCapacity();
     }
 
-
+    // Calculates true usable energy in Watt-hours (Wh)
+    double CalculateTotalPackEnergy() const {
+        // Convert mAh of the weakest group to Ah (e.g., 2500mAh -> 2.5Ah)
+        double usableAh = static_cast<double>(GetUsablePackCapacity()) / 1000.0;
+        double totalPackVoltage = nominalCellVoltage * seriesCount; // Total voltage
+        return usableAh * totalPackVoltage; // Return watt-hours
+    }
 
     void HillClimbOptimization() {
         while (true) {
@@ -121,17 +121,18 @@ public:
         }
     }
 
+    double TotalMaxVoltage() const {
+        return maxSingleCellVoltage * seriesCount;
+    }
+
+
 private:
     std::vector<ParallelGroup> seriesGroups;
     int seriesCount;
     int parallelCount;
-    double MaxCellVoltage;
-    double MinCellVoltage;
     double nominalCellVoltage;
+    double maxSingleCellVoltage;
 
-    double totalMaxVoltage;
-    double totalMinVoltage;
-    double totalNominalVoltage;
 
     int GetLowestCapacityGroupIndex() const {
         int capacity = INT32_MAX;
@@ -189,9 +190,9 @@ private:
         int bestJ = -1;
 
         for (int i = 0; i < parallelGroup1.GetCellCount(); i++) {
-            int cap1 = parallelGroup1.TakeCell(i).GetCapacity();
+            int cap1 = parallelGroup1.GetCell(i).GetCapacity();
             for (int j = 0; j < parallelGroup2.GetCellCount(); j++) {
-                int cap2 = parallelGroup2.TakeCell(j).GetCapacity();
+                int cap2 = parallelGroup2.GetCell(j).GetCapacity();
                 int hypotheticalCap1 = parallelGroup1.GetTotalCapacity() - cap1 + cap2;
                 int hypotheticalCap2 = parallelGroup2.GetTotalCapacity() - cap2 + cap1;
                 int hypotheticalDelta = CapacityDifference(hypotheticalCap1, hypotheticalCap2);
@@ -204,8 +205,8 @@ private:
             }
         }
         if (bestI != -1 && bestJ != -1) {
-            Battery cell1 = parallelGroup1.TakeCell(bestI);
-            Battery cell2 = parallelGroup2.TakeCell(bestJ);
+            Battery cell1 = parallelGroup1.GetCell(bestI);
+            Battery cell2 = parallelGroup2.GetCell(bestJ);
 
             parallelGroup1.SetCell(bestI, cell2);
             parallelGroup2.SetCell(bestJ, cell1);

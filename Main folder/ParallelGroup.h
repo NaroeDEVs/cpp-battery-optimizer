@@ -1,22 +1,23 @@
 #ifndef C_BATTERYPACKOPTIMIZER_PARALLELGROUP_H
 #define C_BATTERYPACKOPTIMIZER_PARALLELGROUP_H
 #include <vector>
+#include <algorithm>
+#include <functional>
+#include <stdexcept>
 #include "Battery.h"
+
 
 class ParallelGroup {
 
     public:
-        ParallelGroup() = default;
+        ParallelGroup() : totalCapacity(0) {}
 
         void AddCell(const Battery& battery) {
             parallelCells.push_back(battery);
+            totalCapacity += battery.GetCapacity();
         }
 
         int GetTotalCapacity() const {
-            int totalCapacity = 0;
-            for (const Battery& battery : parallelCells) {
-                totalCapacity += battery.GetCapacity();
-            }
             return totalCapacity;
         }
 
@@ -24,7 +25,7 @@ class ParallelGroup {
             std::sort(parallelCells.begin(), parallelCells.end(), std::greater<Battery>());
         }
 
-        Battery TakeCell(int index) const {
+        Battery GetCell(int index) const {
             if (index < 0 || index >= parallelCells.size()) {
                 throw std::out_of_range("index out of range");
             }
@@ -35,6 +36,8 @@ class ParallelGroup {
             if (index < 0 || index >= parallelCells.size()) {
                 throw std::out_of_range("Index out of range");
             }
+            totalCapacity -= parallelCells[index].GetCapacity();
+            totalCapacity += battery.GetCapacity();
             parallelCells[index] = battery;
         }
         int GetCellCount() const {
@@ -43,6 +46,7 @@ class ParallelGroup {
 
     private:
         std::vector<Battery> parallelCells;
+        int totalCapacity;
 };
 
 

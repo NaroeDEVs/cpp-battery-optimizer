@@ -28,37 +28,44 @@ int main() {
 
     string selectedType = dataHandler.GetUserStringInput("Select to pack by voltage or manual "
                                                          "series/parallel input (v for voltage, m for manual): ", "vm");
+    double nominalCellVoltage = 0;
+    double maxCellVoltage = 0;
 
+    if (selectedType == "v") {
+        // Option A: Calculate configuration based on voltage targets
+        maxCellVoltage = dataHandler.GetUserDoubleInput("Max single cell voltage (e.g., 4.2): ");
+        double totalMaxVoltage = dataHandler.GetUserDoubleInput("Max target pack voltage (e.g., 58.8): ");
+        nominalCellVoltage = dataHandler.GetUserDoubleInput("Nominal single cell voltage (e.g., 3.6 or 3.7): ");
 
-    double maxCellVoltage = dataHandler.GetUserDoubleInput("Max single cell voltage: ");
-    double minCellVoltage = dataHandler.GetUserDoubleInput("Min single cell voltage: ");
-
-    double nominalCellVoltage = (maxCellVoltage + minCellVoltage) / 2;
-    double totalMaxVoltage = dataHandler.GetUserDoubleInput("Max pack voltage: ");
-
-    int numberOfCells = std::round(totalMaxVoltage / maxCellVoltage);
-    if (std::abs((numberOfCells * maxCellVoltage) - totalMaxVoltage) < 0.1) {
-        std::cout << "Valid pack. Cells in series: " << numberOfCells << "\n";
-        series = numberOfCells;
-        parallel = dataHandler.GetUserParallel();
-    }
-    else {
-        std::cout << "Invalid pack voltage for given cell max voltage. Reading manually.\n";
+        int numberOfCells = std::round(totalMaxVoltage / maxCellVoltage);
+        if (std::abs((numberOfCells * maxCellVoltage) - totalMaxVoltage) < 0.1 && numberOfCells > 0 && totalMaxVoltage > 0) {
+            std::cout << "Valid combination! Calculated cells in series: " << numberOfCells << "\n";
+            series = numberOfCells;
+            parallel = dataHandler.GetUserParallel();
+        } else {
+            std::cout << "Target pack voltage isn't a clean multiple of max cell voltage. Falling back to manual entry.\n";
+            series = dataHandler.GetUserSeries();
+            parallel = dataHandler.GetUserParallel();
+        }
+    } else {
+        // Option B: Manual layout config
         series = dataHandler.GetUserSeries();
         parallel = dataHandler.GetUserParallel();
-
-        if (series * parallel > AllBateries.GetCellCount()) {
-            cout<<"Out of bounds!"<<endl;
-            return 0;
-        }
+        nominalCellVoltage = dataHandler.GetUserDoubleInput("Nominal single cell voltage (e.g., 3.6): ");
     }
 
+    // Unified boundary check for safety
+    if (series * parallel > AllBateries.GetCellCount()) {
+        std::cout << "Out of bounds! You need " << (series * parallel)
+                  << " cells, but only have " << AllBateries.GetCellCount() << " available.\n";
+        return 0;
+    }
 
     PackManager allPacks;
 
     if (areUnique) {
         allPacks.SetSize(series, parallel);
-        allPacks.SetVoltages(maxCellVoltage, minCellVoltage, nominalCellVoltage, totalMaxVoltage);
+        allPacks.SetVoltages(nominalCellVoltage, maxCellVoltage);
         allPacks.PackWithOptimization(AllBateries);
         dataHandler.CompactCellOutput(allPacks, "Initial base optimization");
 
@@ -68,11 +75,10 @@ int main() {
     }
     else {
         allPacks.SetSize(series, parallel);
-        allPacks.SetVoltages(maxCellVoltage, minCellVoltage, nominalCellVoltage, totalMaxVoltage);
+        allPacks.SetVoltages(nominalCellVoltage, maxCellVoltage);
         allPacks.PackWithoutOptimization(AllBateries);
         dataHandler.CompactCellOutput(allPacks, "Packs output");
         dataHandler.DetailedCellOutput(allPacks, "Detailed cell output");
-
     }
 
     return 0;

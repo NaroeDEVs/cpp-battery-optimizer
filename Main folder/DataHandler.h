@@ -76,11 +76,13 @@ public:
         int minCapacity = packManager.MinCapacity();
         std::string wordSummary = "Summary";
         std::string line1 = std::format("| {:^{}} |", wordSummary, len - 4);
-        std::string line2 = std::format("| {0:<25}| {1:<{2}} |", "Max capacity:", maxCapacity, len - 25 - 6);
-        std::string line3 = std::format("| {0:<25}| {1:<{2}} |", "Min capacity:", minCapacity, len - 25 - 6);
-        std::string line4 = std::format("| {0:<25}| {1:<{2}} |", "Biggest Mah difference:", maxCapacity - minCapacity, len - 25 - 6);
-        std::string line5 = std::format("| {0:<25}| {1:<{2}.2f} |", "Average capacity:", packManager.CalculateAverageCapacity(), len - 25 - 6);
-        std::string line6 = std::format("| {0:<25}| {1:<{2}} |", "Variance: ",std::format("{0:.2f}%", packManager.CalculateVariancePercentage()), len - 25 - 6);;
+        std::string line2 = std::format("| {0:<30}| {1:<{2}} |", "Max capacity:", maxCapacity, len - 30 - 6);
+        std::string line3 = std::format("| {0:<30}| {1:<{2}} |", "Min capacity:", minCapacity, len - 30 - 6);
+        std::string line4 = std::format("| {0:<30}| {1:<{2}} |", "Biggest Mah difference:", maxCapacity - minCapacity, len - 30 - 6);
+        std::string line5 = std::format("| {0:<30}| {1:<{2}.2f} |", "Average capacity:", packManager.CalculateAverageCapacity(), len - 30 - 6);
+        std::string line6 = std::format("| {0:<30}| {1:<{2}} |", "Variance: ",std::format("{0:.2f}%", packManager.CalculateVariancePercentage()), len - 30 - 6);;
+        std::string line7 = std::format("| {0:<30}| {1:<{2}.2f} |", "Total usable energy (Wh): ", packManager.CalculateTotalPackEnergy(), len - 30 - 6);
+
 
         std::cout<<line1<<std::endl;
         std::cout<<dashedLine<<std::endl;
@@ -89,6 +91,7 @@ public:
         std::cout<<line4<<std::endl;
         std::cout<<line5<<std::endl;
         std::cout<<line6<<std::endl;
+        std::cout<<line7<<std::endl;
         std::cout<<dashedLine<<std::endl;
         std::cout<<std::endl;
     }
