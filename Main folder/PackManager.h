@@ -15,12 +15,17 @@ class PackManager {
 public:
     PackManager() = default;
 
-    void SetSize(const int & series, const int & parallel, const double & nominalVoltage, const double & totalPackVoltage) {
+    void SetSize(const int & series, const int & parallel) {
         seriesCount = series;
         parallelCount = parallel;
-        nominalCellVoltage = nominalVoltage;
-        totalVoltage = totalPackVoltage;
         seriesGroups.resize(seriesCount);
+    }
+
+    void SetVoltages(const double & maxCellVoltage, const double & minCellVoltage, const double & nominalCell, const double & totalPackVoltage) {
+        MaxCellVoltage = maxCellVoltage;
+        MinCellVoltage = minCellVoltage;
+        nominalCellVoltage = nominalCell;
+        totalMaxVoltage = totalPackVoltage;
     }
 
 
@@ -93,6 +98,15 @@ public:
         return variance * 100;
     }
 
+    double CalculateTotalPackEnergy() const {
+        double AverageCapacity = CalculateAverageCapacity();
+        double totalCapacity = AverageCapacity * seriesCount;
+
+        return totalCapacity;
+    }
+
+
+
     void HillClimbOptimization() {
         while (true) {
             auto [min, max] = FindMaxAndMinCapacitiesIndexes();
@@ -111,8 +125,13 @@ private:
     std::vector<ParallelGroup> seriesGroups;
     int seriesCount;
     int parallelCount;
+    double MaxCellVoltage;
+    double MinCellVoltage;
     double nominalCellVoltage;
-    double totalVoltage;
+
+    double totalMaxVoltage;
+    double totalMinVoltage;
+    double totalNominalVoltage;
 
     int GetLowestCapacityGroupIndex() const {
         int capacity = INT32_MAX;

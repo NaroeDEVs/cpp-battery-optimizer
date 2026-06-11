@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iomanip>
 #include <cmath>
+#include <ranges>
 #include <sstream>
 #include "Battery.h"
 #include "BatteryInventory.h"
@@ -28,17 +29,21 @@ int main() {
     string selectedType = dataHandler.GetUserStringInput("Select to pack by voltage or manual "
                                                          "series/parallel input (v for voltage, m for manual): ", "vm");
 
-    double nominalCellVoltage = dataHandler.GetUserDoubleInput("Nominal single cell voltage: ");
-    double totalVoltage = dataHandler.GetUserDoubleInput("Total pack voltage: ");
-    int numberOfCells = totalVoltage/nominalCellVoltage;
 
-    if (numberOfCells * nominalCellVoltage == totalVoltage) {
+    double maxCellVoltage = dataHandler.GetUserDoubleInput("Max single cell voltage: ");
+    double minCellVoltage = dataHandler.GetUserDoubleInput("Min single cell voltage: ");
+
+    double nominalCellVoltage = (maxCellVoltage + minCellVoltage) / 2;
+    double totalMaxVoltage = dataHandler.GetUserDoubleInput("Max pack voltage: ");
+
+    int numberOfCells = std::round(totalMaxVoltage / maxCellVoltage);
+    if (std::abs((numberOfCells * maxCellVoltage) - totalMaxVoltage) < 0.1) {
         std::cout << "Valid pack. Cells in series: " << numberOfCells << "\n";
         series = numberOfCells;
         parallel = dataHandler.GetUserParallel();
     }
     else {
-        std::cout << "Invalid pack voltage for given cell nominal voltage. Reading manually.\n";
+        std::cout << "Invalid pack voltage for given cell max voltage. Reading manually.\n";
         series = dataHandler.GetUserSeries();
         parallel = dataHandler.GetUserParallel();
 
@@ -52,7 +57,8 @@ int main() {
     PackManager allPacks;
 
     if (areUnique) {
-        allPacks.SetSize(series, parallel, nominalCellVoltage, totalVoltage);
+        allPacks.SetSize(series, parallel);
+        allPacks.SetVoltages(maxCellVoltage, minCellVoltage, nominalCellVoltage, totalMaxVoltage);
         allPacks.PackWithOptimization(AllBateries);
         dataHandler.CompactCellOutput(allPacks, "Initial base optimization");
 
@@ -61,7 +67,8 @@ int main() {
         dataHandler.DetailedCellOutput(allPacks, "Detailed cell output");
     }
     else {
-        allPacks.SetSize(series, parallel, nominalCellVoltage, totalVoltage);
+        allPacks.SetSize(series, parallel);
+        allPacks.SetVoltages(maxCellVoltage, minCellVoltage, nominalCellVoltage, totalMaxVoltage);
         allPacks.PackWithoutOptimization(AllBateries);
         dataHandler.CompactCellOutput(allPacks, "Packs output");
         dataHandler.DetailedCellOutput(allPacks, "Detailed cell output");
