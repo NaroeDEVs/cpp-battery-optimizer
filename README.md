@@ -22,7 +22,7 @@ To build and run this project, you will need a standard C++ compiler (like GCC, 
 
 ## 🗺️ Roadmap (Upcoming Features)
 * **Pack Quality Measurer:** Implement a grading system (Great, Good, Average, Bad, Terrible) based on the percentage deviation from the average pack capacity.
-* **IR factor:** Include internal resitance as packing factor for more optimized results.
+* **IR factor:** Include internal resistance as packing factor for more optimized results.
 * **Website:** Build a website around it for ease of use. 
 
 ## 📄 Data Format
