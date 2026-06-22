@@ -20,18 +20,10 @@ A C++ command-line tool designed to help DIY battery builders construct optimall
 ## 🛠️ Prerequisites & Compilation
 To build and run this project, you will need a standard C++ compiler (like GCC, Clang, or MSVC) that supports C++11 or higher.
 
-### Project Structure
-Ensure your files are organized as follows:
-* `main.cpp`
-* `Batteries.csv` *(Your cell inventory)*
-* `/Battery.h`
-* `/Functions/Capacity algorithms.h`
-* `/Functions/Input and Output.h`
-* `/Functions/Packing Algorithms.h`
-
 ## 🗺️ Roadmap (Upcoming Features)
 * **Pack Quality Measurer:** Implement a grading system (Great, Good, Average, Bad, Terrible) based on the percentage deviation from the average pack capacity.
-* **Switcher:** Add a secondary layer of pack improvement by manually switching batteries between packs, measure capacity difference and thru many iterations try to optimize the packs even more. 
+* **IR factor:** Include internal resistance as packing factor for more optimized results.
+* **Website:** Build a website around it for ease of use. 
 
 ## 📄 Data Format
 The application expects `Batteries.csv` to be formatted with semicolons as delimiters. 
