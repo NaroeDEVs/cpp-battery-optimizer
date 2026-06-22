@@ -74,26 +74,11 @@ public:
 
         int maxCapacity = packManager.MaxCapacity();
         int minCapacity = packManager.MinCapacity();
-        std::string wordSummary = "Summary";
-        std::string line1 = std::format("| {:^{}} |", wordSummary, len - 4);
-        std::string line2 = std::format("| {0:<30}| {1:<{2}} |", "Max capacity:", maxCapacity, len - 30 - 6);
-        std::string line3 = std::format("| {0:<30}| {1:<{2}} |", "Min capacity:", minCapacity, len - 30 - 6);
-        std::string line4 = std::format("| {0:<30}| {1:<{2}} |", "Biggest Mah difference:", maxCapacity - minCapacity, len - 30 - 6);
-        std::string line5 = std::format("| {0:<30}| {1:<{2}.2f} |", "Average capacity:", packManager.CalculateAverageCapacity(), len - 30 - 6);
-        std::string line6 = std::format("| {0:<30}| {1:<{2}} |", "Variance: ",std::format("{0:.2f}%", packManager.CalculateVariancePercentage()), len - 30 - 6);;
-        std::string line7 = std::format("| {0:<30}| {1:<{2}.2f} |", "Total usable energy (Wh): ", packManager.CalculateTotalPackEnergy(), len - 30 - 6);
+        double averageCapacity = packManager.CalculateAverageCapacity();
+        double variancePercentage = packManager.CalculateVariancePercentage();
+        double totalPackEnergy = packManager.CalculateTotalPackEnergy();
+        SummaryOutput(dashedLine, maxCapacity, minCapacity, averageCapacity, variancePercentage, totalPackEnergy);
 
-
-        std::cout<<line1<<std::endl;
-        std::cout<<dashedLine<<std::endl;
-        std::cout<<line2<<std::endl;
-        std::cout<<line3<<std::endl;
-        std::cout<<line4<<std::endl;
-        std::cout<<line5<<std::endl;
-        std::cout<<line6<<std::endl;
-        std::cout<<line7<<std::endl;
-        std::cout<<dashedLine<<std::endl;
-        std::cout<<std::endl;
     }
 
     void DetailedCellOutput(const PackManager& packManager, const std::string & topping) {
@@ -112,6 +97,7 @@ public:
         for (int i=0; i<series; i++) {
             OutputCellParallelBlock(packManager, totalLen, i);
         }
+
     }
 
     std::string GetUserStringInput(const std::string & prompt, const std::string & allowedCharacters) {
@@ -181,7 +167,7 @@ private:
     std::string CellOutput(const PackManager& packManager, int selectedCell) {
         std::string output= "|";
         for (int i=0; i<packManager.GetSeries(); i++) {
-            Battery h = packManager.TakeBattery(i, selectedCell);
+            Battery h = packManager.GetCell(i, selectedCell);
             output += std::format(" {:<6}|", h.GetCapacity());
         }
         return output;
@@ -210,12 +196,35 @@ private:
         std::cout << dashedLine << std::endl;
 
         for (int i = 0; i < packManager.GetParallel(); i++) {
-            Battery h = packManager.TakeBattery(selectedBlock, i);
+            Battery h = packManager.GetCell(selectedBlock, i);
             std::string rowLine = std::format("| {:<{}} |", h.PrintStatus(), toppingLen - 4);
             std::cout << rowLine << std::endl;
         }
+    }
 
-        std::cout << dashedLine << std::endl;
+
+    void SummaryOutput(const std::string & dashedLine, int maxCapacity, int minCapacity, double averageCapacity, double variancePercentage, double totalPackEnergy) {
+        int len = dashedLine.length();
+        std::string wordSummary = "Summary";
+        std::string line1 = std::format("| {:^{}} |", wordSummary, len - 4);
+        std::string line2 = std::format("| {0:<30}| {1:<{2}} |", "Max capacity:", std::to_string(maxCapacity) + " mAh", len - 30 - 6);
+        std::string line3 = std::format("| {0:<30}| {1:<{2}} |", "Min capacity:", std::to_string(minCapacity) + " mAh", len - 30 - 6);
+        std::string line4 = std::format("| {0:<30}| {1:<{2}} |", "Biggest Mah difference:", std::to_string(maxCapacity - minCapacity) + " mAh", len - 30 - 6);
+        std::string line5 = std::format("| {0:<30}| {1:<{2}} |", "Average capacity:", std::format("{0:.2f} mAh", averageCapacity), len - 30 - 6);
+        std::string line6 = std::format("| {0:<30}| {1:<{2}} |", "Variance: ",std::format("{0:.2f}%", variancePercentage), len - 30 - 6);;
+        std::string line7 = std::format("| {0:<30}| {1:<{2}} |", "Total usable energy (Wh): ", std::format("{0:.2f} Wh", totalPackEnergy), len - 30 - 6);
+
+
+        std::cout<<line1<<std::endl;
+        std::cout<<dashedLine<<std::endl;
+        std::cout<<line2<<std::endl;
+        std::cout<<line3<<std::endl;
+        std::cout<<line4<<std::endl;
+        std::cout<<line5<<std::endl;
+        std::cout<<line6<<std::endl;
+        std::cout<<line7<<std::endl;
+        std::cout<<dashedLine<<std::endl;
+        std::cout<<std::endl;
     }
 };
 

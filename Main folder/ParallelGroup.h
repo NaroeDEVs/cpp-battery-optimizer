@@ -18,14 +18,14 @@ class ParallelGroup {
             totalCapacity += battery.GetCapacity();
         }
 
-        int GetTotalCapacity() const { return totalCapacity; }  // Returns total capacity.
-        int GetCellCount() const { return parallelCells.size();}    // Returns current count of cells in vector.
+        int GetTotalCapacity() const { return totalCapacity; }
+        int GetCellCount() const { return parallelCells.size();}
 
         // Sorts in descending order by capacity.
         void SortCells() { std::sort(parallelCells.begin(), parallelCells.end(), std::greater<Battery>());}
 
         // Returns specific index cell.
-        Battery GetCell(const int & index) const {
+        Battery GetCell(int index) const {
             if (index < 0 || index >= parallelCells.size()) {
                 throw std::out_of_range("index out of range");
             }
@@ -33,7 +33,7 @@ class ParallelGroup {
         }
 
         // Replaces specified index cell with new one and adjusts total capacity.
-        void SetCell(const int & index, const Battery& battery) {
+        void SetCell(int index, const Battery& battery) {
             if (index < 0 || index >= parallelCells.size()) {
                 throw std::out_of_range("Index out of range");
             }
@@ -41,8 +41,6 @@ class ParallelGroup {
             totalCapacity += battery.GetCapacity();
             parallelCells[index] = battery;
         }
-
-
     private:
         std::vector<Battery> parallelCells;  // Battery vector for parallel group cells.
         int totalCapacity;       // Total capacity of the parallel group, updated whenever a cell is added or replaced.

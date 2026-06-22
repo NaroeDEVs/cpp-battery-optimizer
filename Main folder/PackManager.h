@@ -1,31 +1,34 @@
 #ifndef C_BATTERYPACKOPTIMIZER_PACKMANAGER_H
 #define C_BATTERYPACKOPTIMIZER_PACKMANAGER_H
 
-#include <algorithm>
 #include <string>
 #include <vector>
-#include <iostream>
 #include "BatteryInventory.h"
 #include "Battery.h"
 #include "ParallelGroup.h"
 #include "limits.h"
-#include <tuple>
 
+// Represent whole pack of parallel groups
 class PackManager {
 public:
     PackManager() = default;
 
-    void SetSize(const int & series, const int & parallel) {
+    // sets the size of the pack in series and parallel
+    void SetSize(int  series, int parallel) {
         seriesCount = series;
         parallelCount = parallel;
         seriesGroups.resize(seriesCount);
     }
 
-    void SetVoltages(const double & NominalCellVoltage, const double & MaxSingleCellVoltage) {
+    // sets single cell (Parallel group) nominal and maximum voltages
+    void SetVoltages(double NominalCellVoltage, double MaxSingleCellVoltage) {
         nominalCellVoltage = NominalCellVoltage;
         maxSingleCellVoltage = MaxSingleCellVoltage;
     }
 
+    // ---- Exemption stage ----
+    // Packs the cells into the pack without any optimization, just filling groups in order.
+    // Used in case of all cells being same capacity to reduce complexity and time of packing.
     void PackWithoutOptimization(BatteryInventory& batteryInventory) {
         int k = 0;
         for (int i=0; i<seriesCount; i++) {
@@ -36,6 +39,8 @@ public:
         }
     }
 
+    // ---- 1st packing stage: Greedy packing algorithm. ----
+    // Packs by taking top series*parallel sorted cells and assigns them to whichever next parallel group has lowest capacity.
     void PackWithOptimization(BatteryInventory& batteryInventory) {
         std::vector<Battery> bestCells = batteryInventory.GetTopCells(seriesCount * parallelCount);
         for (int i = 0; i < seriesCount*parallelCount; i++) {
@@ -47,32 +52,31 @@ public:
         }
     }
 
-    int GetSeries() const {
-        return seriesCount;
-    }
+    int GetSeries() const { return seriesCount; }
+    int GetParallel() const { return parallelCount; }
 
-    int GetParallel() const {
-        return parallelCount;
-    }
+    Battery GetCell(int seriesIndex, int parallelIndex) const { return seriesGroups[seriesIndex].GetCell(parallelIndex); }
 
-    Battery TakeBattery(int seriesIndex, int parallelIndex) const {
-        return seriesGroups[seriesIndex].GetCell(parallelIndex);
-    }
+    // Returns total capacity of specified parallel group.
+    int GetIndexParallelCapacity(int seriesIndex) const { return seriesGroups[seriesIndex].GetTotalCapacity();}
 
-    int GetIndexParallelCapacity(int seriesIndex) const {
-        return seriesGroups[seriesIndex].GetTotalCapacity();
-    }
-
+    // Returns maximum parallel group total capacity.
     int MaxCapacity() const {
-        auto[min, max] = FindMaxAndMinCapacities();
-        return max;
+        if (seriesCount > 0) {
+            return FindMinMaxIndexes().maxCapacity;
+        }
+        return 0;
     }
 
+    // Returns minimum parallel group total capacity.
     int MinCapacity() const {
-        auto[min, max] = FindMaxAndMinCapacities();
-        return min;
+        if (seriesCount > 0) {
+            return FindMinMaxIndexes().minCapacity;
+        }
+        return 0;
     }
 
+    // Returns whole pack capacity (sum of all parallel groups capacities).
     int CalculateTotalCapacity() const {
         int totalCapacity = 0;
         for (int i = 0; i < seriesCount; i++) {
@@ -81,43 +85,45 @@ public:
         return totalCapacity;
     }
 
+    // Returns average parallel group capacity.
     double CalculateAverageCapacity() const {
         int totalCapacity = CalculateTotalCapacity();
         return static_cast<double>(totalCapacity) / seriesCount;
     }
 
+    // Returns percentage variance between the weakest and strongest parallel group, calculated as (max - min) / average * 100.
     double CalculateVariancePercentage() const {
         double variance = 0;
         double averageCap = CalculateAverageCapacity();
-        auto[min, max] = FindMaxAndMinCapacities();
-        int biggestDifference = max - min;
+        auto extremes = FindMinMaxIndexes();
+        int biggestDifference = extremes.maxCapacity - extremes.minCapacity;
         variance = static_cast<double>(biggestDifference) / averageCap;
         return variance * 100;
     }
 
+    // Returns actual usable pack capacity, which is the capacity of the weakest parallel group, since it limits the whole pack.
     int GetUsablePackCapacity() const {
         return MinCapacity();
     }
 
     // Calculates true usable energy in Watt-hours (Wh)
     double CalculateTotalPackEnergy() const {
-        // Convert mAh of the weakest group to Ah (e.g., 2500mAh -> 2.5Ah)
         double usableAh = static_cast<double>(GetUsablePackCapacity()) / 1000.0;
-        double totalPackVoltage = nominalCellVoltage * seriesCount; // Total voltage
-        return usableAh * totalPackVoltage; // Return watt-hours
+        double totalPackVoltage = nominalCellVoltage * seriesCount;
+        return usableAh * totalPackVoltage;
     }
 
+    // ---- 2nd packing stage: Hill climbing optimization algorithm. ----
+    // Iteratively tries to optimize the pack by swapping cells between the strongest and weakest parallel groups, until no improvement can be made.
     void HillClimbOptimization() {
         while (true) {
-            auto [min, max] = FindMaxAndMinCapacitiesIndexes();
+            auto extremes = FindMinMaxIndexes();
 
-            if (min == -1 || max == -1 || min == max) {
+            if (extremes.minIndex == -1 || extremes.maxIndex == -1 || extremes.minIndex == extremes.maxIndex) {
                 break;
             }
-            bool madeImprovement = OptimizeParallelGroups(seriesGroups[min], seriesGroups[max]);
-            if (!madeImprovement) {
-                break;
-            }
+            bool madeImprovement = OptimizeParallelGroups(seriesGroups[extremes.minIndex], seriesGroups[extremes.maxIndex]);
+            if (!madeImprovement) break;
         }
     }
 
@@ -127,13 +133,22 @@ public:
 
 
 private:
-    std::vector<ParallelGroup> seriesGroups;
-    int seriesCount;
-    int parallelCount;
-    double nominalCellVoltage;
-    double maxSingleCellVoltage;
+    std::vector<ParallelGroup> seriesGroups; // Vector holding parallel groups, which in turn hold cells.
+    int seriesCount;                         // Number of parallel groups in series (number of cells in series).
+    int parallelCount;                       // Number of cells in each parallel group.
+    double nominalCellVoltage;               // Nominal voltage of a single cell.
+    double maxSingleCellVoltage;             // Maximum voltage of a single cell.
+
+    // Holds indexes of the parallel groups with minimum and maximum total capacities.
+    struct PackExtremes {
+        int minIndex = -1;
+        int maxIndex = -1;
+        int minCapacity = INT_MAX;
+        int maxCapacity = INT_MIN;
+    };
 
 
+    // Returns index of the parallel group with the lowest total capacity, that isn't already full (doesn't have parallelCount cells).
     int GetLowestCapacityGroupIndex() const {
         int capacity = INT32_MAX;
         int index = -1;
@@ -146,44 +161,31 @@ private:
         return index;
     }
 
-    std::tuple<int, int> FindMaxAndMinCapacities() const {
-        int currentMin = INT_MAX;
-        int currentMax = INT_MIN;
+    // Finds the minimum and maximum total capacities among the parallel groups.
+    PackExtremes FindMinMaxIndexes() const {
+        if (seriesCount == 0) return {};
+        PackExtremes extremes;
         for (int i = 0; i < seriesCount; i++) {
             int totalCap = seriesGroups[i].GetTotalCapacity();
-            if (totalCap < currentMin) {
-                currentMin = totalCap;
+            if (totalCap < extremes.minCapacity) {
+                extremes.minIndex = i;
+                extremes.minCapacity = totalCap;
             }
-            if (totalCap > currentMax) {
-                currentMax = totalCap;
-            }
-        }
-        return {currentMin, currentMax};
-    }
-
-    std::tuple<int, int> FindMaxAndMinCapacitiesIndexes() const {
-        int currentMin = INT_MAX;
-        int currentMax = INT_MIN;
-        int minIndex = -1;
-        int maxIndex = -1;
-
-        for (int i = 0; i < seriesCount; i++) {
-            int totalCap = seriesGroups[i].GetTotalCapacity();
-            if (totalCap < currentMin) {
-                currentMin = totalCap;
-                minIndex = i;
-            }
-            if (totalCap > currentMax) {
-                currentMax = totalCap;
-                maxIndex = i;
+            if (totalCap > extremes.maxCapacity) {
+                extremes.maxIndex = i;
+                extremes.maxCapacity = totalCap;
             }
         }
-        return {minIndex, maxIndex};
+        return extremes;
     }
 
+    // Returns the absolute difference between two capacities.
     int CapacityDifference(int cap1, int cap2) const {
         return abs(cap1 - cap2);
     }
+
+    // Part of the hill climbing optimization, tries to swap cells between two parallel groups to reduce the capacity difference.
+    // Returns true if an improvement was made.
     bool OptimizeParallelGroups(ParallelGroup& parallelGroup1, ParallelGroup& parallelGroup2) {
         int bestDelta = CapacityDifference(parallelGroup1.GetTotalCapacity(), parallelGroup2.GetTotalCapacity());
         int bestI = -1;

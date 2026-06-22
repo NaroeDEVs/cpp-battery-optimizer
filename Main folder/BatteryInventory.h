@@ -23,7 +23,6 @@ class BatteryInventory {
             }
         }
 
-        // Returns current count of batteries in storage
         int GetCellCount() const {return cells.size();}
 
         // Sorts in descending order by capacity.
@@ -33,7 +32,7 @@ class BatteryInventory {
         bool CheckIfAnyBatteryIsUnique() const {return uniqueCells;}
 
         // Returns specific index cell.
-        Battery GetCell(const int & index) const {
+        Battery GetCell(int index) const {
             if (index < 0 || index >= cells.size()) {
                 throw std::out_of_range("index out of range");
             }
