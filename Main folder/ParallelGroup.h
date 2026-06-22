@@ -6,33 +6,34 @@
 #include <stdexcept>
 #include "Battery.h"
 
-
+// Represents a single parallel group of cells.
 class ParallelGroup {
 
     public:
-        ParallelGroup() : totalCapacity(0) {}
+        ParallelGroup() : totalCapacity(0) {} // Empty constructor with initial total capacity set as 0.
 
+        // Adds new cell to vector and updates total capacity by addition.
         void AddCell(const Battery& battery) {
             parallelCells.push_back(battery);
             totalCapacity += battery.GetCapacity();
         }
 
-        int GetTotalCapacity() const {
-            return totalCapacity;
-        }
+        int GetTotalCapacity() const { return totalCapacity; }  // Returns total capacity.
+        int GetCellCount() const { return parallelCells.size();}    // Returns current count of cells in vector.
 
-        void SortCells() {
-            std::sort(parallelCells.begin(), parallelCells.end(), std::greater<Battery>());
-        }
+        // Sorts in descending order by capacity.
+        void SortCells() { std::sort(parallelCells.begin(), parallelCells.end(), std::greater<Battery>());}
 
-        Battery GetCell(int index) const {
+        // Returns specific index cell.
+        Battery GetCell(const int & index) const {
             if (index < 0 || index >= parallelCells.size()) {
                 throw std::out_of_range("index out of range");
             }
             return parallelCells[index];
         }
 
-        void SetCell(int index, const Battery& battery) {
+        // Replaces specified index cell with new one and adjusts total capacity.
+        void SetCell(const int & index, const Battery& battery) {
             if (index < 0 || index >= parallelCells.size()) {
                 throw std::out_of_range("Index out of range");
             }
@@ -40,13 +41,11 @@ class ParallelGroup {
             totalCapacity += battery.GetCapacity();
             parallelCells[index] = battery;
         }
-        int GetCellCount() const {
-            return parallelCells.size();
-        }
+
 
     private:
-        std::vector<Battery> parallelCells;
-        int totalCapacity;
+        std::vector<Battery> parallelCells;  // Battery vector for parallel group cells.
+        int totalCapacity;       // Total capacity of the parallel group, updated whenever a cell is added or replaced.
 };
 
 

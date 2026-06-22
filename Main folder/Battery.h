@@ -8,6 +8,7 @@
 // Represents a single battery cell.
 class Battery {
     public:
+        // Empty constructor with default parameters
         Battery() {
             id = 0;
             capacity = 0;
@@ -15,6 +16,7 @@ class Battery {
             condition = "N/A";
         }
 
+        // Constructor with parameters
         Battery(int id, int cap, const std::string & man, const std::string & cond = "N/A") {
             this->id = id;
             this->capacity = cap;
@@ -28,19 +30,22 @@ class Battery {
         std::string GetManufacturer() const{ return manufacturer; }
         std::string GetCondition() const{ return condition; }
 
+        // Compares 2 cells by capacity.
         friend bool operator<(const Battery& lhs, const Battery& rhs) {
                 return lhs.capacity < rhs.capacity;
             }
+        // Compares 2 cells by capacity.
         friend bool operator>(const Battery& lhs, const Battery& rhs) {
                 return lhs.capacity > rhs.capacity;
             }
 
     private:
-        int id;
-        int capacity;
-        std::string manufacturer;
-        std::string condition;
+        int id;                     // Battery individual identifier
+        int capacity;               // Capacity in mAh
+        std::string manufacturer;   // Manufacturer name
+        std::string condition;      // Battery condition
 
+        // Returns formatted string with battery info.
         std::string Status() const{
             return std::format(
                 "{:<17} | {:<17} | {:<26} | {} ",

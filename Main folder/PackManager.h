@@ -30,7 +30,7 @@ public:
         int k = 0;
         for (int i=0; i<seriesCount; i++) {
             for (int j=0; j<parallelCount; j++) {
-                seriesGroups[i].AddCell(batteryInventory.GetBattery(k));
+                seriesGroups[i].AddCell(batteryInventory.GetCell(k));
                 k++;
             }
         }
