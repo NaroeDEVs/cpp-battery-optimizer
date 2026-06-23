@@ -28,9 +28,6 @@ To build and run this project, you will need a standard C++ compiler (like GCC, 
 ## 📄 Data Format
 The application expects `Batteries.csv` to be formatted with semicolons as delimiters. 
 
-**Example `Batteries.csv`:**
-```csv
-
 ## License & Usage
 
 This project is licensed under the **PolyForm Noncommercial 1.0.0** license.
