@@ -124,10 +124,10 @@ public:
         while (true) {
             auto extremes = FindMinMaxIndexes();
 
-            if (extremes.minIndex == -1 || extremes.maxIndex == -1 || extremes.minIndex == extremes.maxIndex) {
+            if (extremes.minCapacityIndex == -1 || extremes.maxCapacityIndex == -1 || extremes.minCapacityIndex == extremes.maxCapacityIndex) {
                 break;
             }
-            bool madeImprovement = OptimizeParallelGroups(seriesGroups[extremes.minIndex], seriesGroups[extremes.maxIndex]);
+            bool madeImprovement = OptimizeParallelGroups(seriesGroups[extremes.minCapacityIndex], seriesGroups[extremes.maxCapacityIndex]);
             if (!madeImprovement) break;
         }
     }
@@ -146,10 +146,15 @@ private:
 
     // Holds indexes of the parallel groups with minimum and maximum total capacities.
     struct PackExtremes {
-        int minIndex = -1;
-        int maxIndex = -1;
+        int minCapacityIndex = -1;
+        int maxCapacityIndex = -1;
         int minCapacity = INT_MAX;
         int maxCapacity = INT_MIN;
+
+        int minInternalResistanceIndex = -1;
+        int maxInternalResistanceIndex = -1;
+        double minInternalResistance = std::numeric_limits<double>::max();
+        double maxInternalResistance = std::numeric_limits<double>::min();
     };
 
 
@@ -166,19 +171,30 @@ private:
         return index;
     }
 
-    // Finds the minimum and maximum total capacities among the parallel groups.
+    // Finds the indexes of the parallel groups with minimum and maximum total capacities and internal resistances.
     PackExtremes FindMinMaxIndexes() const {
         if (seriesCount == 0) return {};
         PackExtremes extremes;
         for (int i = 0; i < seriesCount; i++) {
+
             int totalCap = seriesGroups[i].GetTotalCapacity();
             if (totalCap < extremes.minCapacity) {
-                extremes.minIndex = i;
+                extremes.minCapacityIndex = i;
                 extremes.minCapacity = totalCap;
             }
             if (totalCap > extremes.maxCapacity) {
-                extremes.maxIndex = i;
+                extremes.maxCapacityIndex = i;
                 extremes.maxCapacity = totalCap;
+            }
+
+            double internalResistance = seriesGroups[i].GetTotalInternalResistance();
+            if (internalResistance < extremes.minInternalResistance) {
+                extremes.minInternalResistanceIndex = i;
+                extremes.minInternalResistance = internalResistance;
+            }
+            if (internalResistance > extremes.maxInternalResistance) {
+                extremes.maxInternalResistanceIndex = i;
+                extremes.maxInternalResistance = internalResistance;
             }
         }
         return extremes;
