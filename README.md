@@ -28,9 +28,15 @@ To build and run this project, you will need a standard C++ compiler (like GCC, 
 ## 📄 Data Format
 The application expects `Batteries.csv` to be formatted with semicolons as delimiters. 
 
-**Example `Batteries.csv`:**
-```csv
-ID;Capacity(mAh);Manufacturer
-1;2500;Samsung
-2;2480;Samsung
-3;2510;Sony
+## License & Usage
+
+This project is licensed under the **PolyForm Noncommercial 1.0.0** license.
+
+**What this means for you:**
+*   **Personal & Hobby Use:** You are free to download, use, and modify this code for your own personal, educational, or hobbyist battery projects.
+*   **Commercial Use:** Using this software for any commercial purpose, for-profit business, or professional service is **strictly prohibited** without express permission. 
+
+If you are interested in using this software for commercial applications, please contact mercrypt@proton.me to discuss a commercial licensing agreement. 
+
+See the [LICENSE](LICENSE) file for full legal details.
+
