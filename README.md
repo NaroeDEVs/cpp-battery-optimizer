@@ -39,7 +39,4 @@ This project is licensed under the **PolyForm Noncommercial 1.0.0** license.
 If you are interested in using this software for commercial applications, please contact [Your Email/Contact] to discuss a commercial licensing agreement. 
 
 See the [LICENSE](LICENSE) file for full legal details.
-ID;Capacity(mAh);Manufacturer
-1;2500;Samsung
-2;2480;Samsung
-3;2510;Sony
+
