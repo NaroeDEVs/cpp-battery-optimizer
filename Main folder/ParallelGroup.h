@@ -18,6 +18,7 @@ class ParallelGroup {
             parallelCells.push_back(battery);
             totalCapacity += battery.GetCapacity();
             UpdateMinAndMaxCapacity();
+            CalculateTotalInternalResistance();
         }
 
         int GetTotalCapacity() const { return totalCapacity; }
@@ -46,6 +47,7 @@ class ParallelGroup {
             totalCapacity += battery.GetCapacity();
             parallelCells[index] = battery;
             UpdateMinAndMaxCapacity();
+            CalculateTotalInternalResistance();
         }
 
         int GetMinCapacity() const {return parallelCells[minCapacityIndex].GetCapacity();}
@@ -61,6 +63,8 @@ class ParallelGroup {
 
         // Calculates the total energy of the parallel group in Watt-hours (Wh) based on the nominal cell voltage.
         double GetTotalPackEnergy(double nominalCellVoltage) const { return totalCapacity / 1000.0 * nominalCellVoltage ; }
+        double GetTotalInternalResistance() const { return totalInternalResistance; }
+
 
 
     private:
@@ -68,6 +72,7 @@ class ParallelGroup {
         int totalCapacity;       // Total capacity of the parallel group, updated whenever a cell is added or replaced.
         int minCapacityIndex = -1; // Index of the cell with minimum capacity in the parallel group.
         int maxCapacityIndex = -1; // Index of the cell with maximum capacity in the parallel group.
+        double totalInternalResistance = 0.0;
 
 
         // Finds the indexes of the cells with minimum and maximum capacities in the parallel group and updates the corresponding member variables.
@@ -87,6 +92,20 @@ class ParallelGroup {
                     maxCapacityIndex = i;
                 }
             }
+        }
+
+        // Calculates total internal resistance of the parallel group using the formula: 1/R_total = 1/R1 + 1/R2 + ... + 1/Rn.
+        void CalculateTotalInternalResistance() {
+            double internalResitance = 0;
+            for (int i=0; i<parallelCells.size(); i++) {
+                if (parallelCells[i].GetInternalResistance() > 0) {
+                    internalResitance += 1.0/parallelCells[i].GetInternalResistance();
+                }
+            }
+            if (internalResitance > 0) {
+                totalInternalResistance = 1.0/internalResitance;
+            }
+            else totalInternalResistance = 0.0;
         }
 
 };
