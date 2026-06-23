@@ -27,7 +27,7 @@ int main() {
     bool areUnique = AllBateries.CheckIfAnyBatteryIsUnique();
 
     string selectedType = dataHandler.GetUserStringInput("Select to pack by voltage or manual "
-                                                         "series/parallel input (v for voltage, m for manual): ", "vm");
+                                                         "series/parallel input (v for voltage, m for manual, d for defaults): ", "vmd");
     double nominalCellVoltage = 0;
     double maxCellVoltage = 0;
 
@@ -47,11 +47,19 @@ int main() {
             series = dataHandler.GetUserSeries();
             parallel = dataHandler.GetUserParallel();
         }
-    } else {
+    }
+    else if (selectedType == "m")
+        {
         // Option B: Manual layout config
         series = dataHandler.GetUserSeries();
         parallel = dataHandler.GetUserParallel();
         nominalCellVoltage = dataHandler.GetUserDoubleInput("Nominal single cell voltage (e.g., 3.6): ");
+    }
+    else if (selectedType == "d") {
+        // Option C: Defaults
+        series = 16;
+        parallel = 5;
+        nominalCellVoltage = 3.7;
     }
 
     // Unified boundary check for safety

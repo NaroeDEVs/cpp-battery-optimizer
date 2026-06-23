@@ -14,10 +14,12 @@
 class DataHandler {
 
 public:
+    // Sets the source and destination file paths for reading and writing data.
     DataHandler(std::string sourceFilePath, std::string destinationFilePath) :
         sourceFilePath(sourceFilePath),
         destinationFilePath(destinationFilePath) {}
 
+    // Reads battery data from a CSV file and populates the provided BatteryInventory object.
     void ReadData(BatteryInventory& batteryPack) {
             std::ifstream reader(sourceFilePath);
             if (!reader.is_open()) {
@@ -29,17 +31,20 @@ public:
             std::getline(reader, line);
             while (std::getline(reader, line)) {
                 std::istringstream ss(line);
-                std::string idStr, capStr, manStr, condStr;
+                std::string idString, capacityString, manufacturerString, conditionString, internalResistanceString;
 
-                if (!std::getline(ss, idStr, ';')) continue;
-                if (!std::getline(ss, capStr, ';')) continue;
-                if (!std::getline(ss, manStr, ';')) continue;
-                std::getline(ss, condStr, ';');
+                if (!std::getline(ss, idString, ';')) continue;
+                if (!std::getline(ss, capacityString, ';')) continue;
+                if (!std::getline(ss, internalResistanceString, ';')) continue;
+                if (!std::getline(ss, manufacturerString, ';')) continue;
 
-                int id = std::stoi(idStr);
-                int capacity = std::stoi(capStr);
+                std::getline(ss, conditionString, ';');
 
-                Battery battery(id, capacity, manStr, condStr.empty() ? "N/A" : condStr);
+                int id = std::stoi(idString);
+                int capacity = std::stoi(capacityString);
+                double internalResistance = std::stod(internalResistanceString);
+
+                Battery battery(id, capacity, internalResistance, manufacturerString, conditionString.empty() ? "N/A" : conditionString);
                 batteryPack.AddCell(battery);
             }
 
@@ -48,6 +53,7 @@ public:
     int GetUserParallel() { return GetUserInt("parallel: ");}
     int GetUserLevelOfOptimization() { return GetUserInt("Level of optimization: ");}
 
+    // Compact output of all cells in the pack, showing only capacities and summary statistics.
     void CompactCellOutput(const PackManager& packManager, std::string topping) {
         std::string output = "";
         int series = packManager.GetSeries();
@@ -65,12 +71,10 @@ public:
             std::string line = std::format("| {:<25}", "cell " + std::to_string(i)) + CellOutput(packManager, i);
             std::cout<<line<<std::endl;
         }
-
         std::cout<<dashedLine<<std::endl;
         std::string allCapacitiesLine = std::format("| {:<25}", "Total capacities:") + GetCapacitiesOutput(packManager);
         std::cout<<allCapacitiesLine<<std::endl;
         std::cout<<dashedLine<<std::endl;
-
 
         int maxCapacity = packManager.MaxCapacity();
         int minCapacity = packManager.MinCapacity();
@@ -78,9 +82,9 @@ public:
         double variancePercentage = packManager.CalculateVariancePercentage();
         double totalPackEnergy = packManager.CalculateTotalPackEnergy();
         SummaryOutput(dashedLine, maxCapacity, minCapacity, averageCapacity, variancePercentage, totalPackEnergy);
-
     }
 
+    // Detailed output of all cells in the pack, showing full information for each cell and summary statistics for each parallel group.
     void DetailedCellOutput(const PackManager& packManager, const std::string & topping) {
         std::string output = "";
         int series = packManager.GetSeries();
@@ -97,30 +101,29 @@ public:
         for (int i=0; i<series; i++) {
             OutputCellParallelBlock(packManager, totalLen, i);
         }
-
     }
 
+    // Prompts the user for an integer input with a given prompt message and returns the valid integer.
     std::string GetUserStringInput(const std::string & prompt, const std::string & allowedCharacters) {
         return GetUserString(prompt, allowedCharacters);
     }
 
+    // Prompts the user for a double input with a given prompt message and returns the valid double.
     double GetUserDoubleInput(const std::string & prompt) {
         return GetUserDouble(prompt);
-
     }
 
 
 private:
-    std::string sourceFilePath;
-    std::string destinationFilePath;
+    std::string sourceFilePath;         // Path to the source CSV file for reading battery data.
+    std::string destinationFilePath;    // Path to the destination file for writing output data.
 
+    // Prompts the user for an integer input with a given prompt message and returns the valid integer.
     int GetUserInt(const std::string prompt) {
         int value = 0;
         while (true) {
             std::cout << prompt;
-            if (std::cin>>value && value >0 ) {
-                return value;
-            }
+            if (std::cin>>value && value >0 ) return value;
             else {
                 std::cin.clear();
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -130,6 +133,7 @@ private:
         return value;
     }
 
+    // Prompts the user for a string input with a given prompt message and allowed characters, and returns the valid string.
     std::string GetUserString(const std::string prompt, const std::string allowedCharacters) {
         while (true) {
             std::cout << prompt;
@@ -143,13 +147,12 @@ private:
                         break;
                     }
                 }
-                if (isValid) {
-                    return input;
-                }
+                if (isValid) return input;
             }
         }
     }
 
+    // Prompts the user for a double input with a given prompt message and returns the valid double.
     double GetUserDouble(const std::string prompt) {
         double value = 0;
         while (true) {
@@ -164,6 +167,7 @@ private:
         }
     }
 
+    // Returns a formatted string representing the capacities of all cells in a specific parallel group (selectedCell) of the pack.
     std::string CellOutput(const PackManager& packManager, int selectedCell) {
         std::string output= "|";
         for (int i=0; i<packManager.GetSeries(); i++) {
@@ -173,6 +177,7 @@ private:
         return output;
     }
 
+    // Returns a formatted string representing the total capacities of all parallel groups in the pack.
     std::string GetCapacitiesOutput(const PackManager& packManager) {
         std::string output = "|";
         for (int i=0; i<packManager.GetSeries(); i++) {
@@ -181,6 +186,7 @@ private:
         return output;
     }
 
+    // Outputs detailed information for a specific parallel group (selectedBlock) of the pack, including each cell's status and summary statistics.
     void OutputCellParallelBlock(const PackManager& packManager, int toppingLen, int selectedBlock) {
         std::string dashedLine(toppingLen, '-');
         std::string topLine = std::format("| {:^{}} |", "Block " + std::to_string(selectedBlock), toppingLen - 4);
@@ -190,7 +196,7 @@ private:
         std::cout << topLine << std::endl;
         std::cout << dashedLine << std::endl;
 
-        std::string rawHeader = std::format("{:<17} | {:<17} | {:<26} | {}", "Battery ID", "Capacity (mAh)", "Manufacturer", "Condition");
+        std::string rawHeader = std::format("{:<17} | {:<17} | {:<17} | {:<17} | {}", "Battery ID", "Capacity (mAh)", "Internal Resistance (mΩ)",  "Manufacturer", "Condition");
         std::string headerLine = std::format("| {:<{}} |", rawHeader, toppingLen - 4);
         std::cout << headerLine << std::endl;
         std::cout << dashedLine << std::endl;
@@ -200,9 +206,17 @@ private:
             std::string rowLine = std::format("| {:<{}} |", h.PrintStatus(), toppingLen - 4);
             std::cout << rowLine << std::endl;
         }
+        std::cout << dashedLine << std::endl;
+
+        int maxCapacity = packManager.GetIndexParallelMaxCapacity(selectedBlock);
+        int minCapacity = packManager.GetIndexParallelMinCapacity(selectedBlock);
+        double averageCapacity = packManager.GetIndexParallelAverageCapacity(selectedBlock);
+        double variancePercentage = packManager.GetIndexParallelVariancePercentage(selectedBlock);
+        double totalPackEnergy = packManager.GetIndexParallelTotalPackVoltage(selectedBlock);
+        SummaryOutput(dashedLine, maxCapacity, minCapacity, averageCapacity, variancePercentage, totalPackEnergy);
     }
 
-
+    // Outputs a summary of the parallel group, including maximum, minimum, average capacities, variance percentage, and total usable energy in Watt-hours (Wh).
     void SummaryOutput(const std::string & dashedLine, int maxCapacity, int minCapacity, double averageCapacity, double variancePercentage, double totalPackEnergy) {
         int len = dashedLine.length();
         std::string wordSummary = "Summary";
@@ -227,7 +241,5 @@ private:
         std::cout<<std::endl;
     }
 };
-
-
 
 #endif //C_BATTERYPACKOPTIMIZER_DATAHANDLER_H

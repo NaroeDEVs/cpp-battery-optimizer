@@ -5,6 +5,7 @@
 #include <functional>
 #include <stdexcept>
 #include "Battery.h"
+#include <limits.h>
 
 // Represents a single parallel group of cells.
 class ParallelGroup {
@@ -12,17 +13,21 @@ class ParallelGroup {
     public:
         ParallelGroup() : totalCapacity(0) {} // Empty constructor with initial total capacity set as 0.
 
-        // Adds new cell to vector and updates total capacity by addition.
+        // Adds new cell to vector and updates total capacity by addition. Also updates min and max capacity indexes.
         void AddCell(const Battery& battery) {
             parallelCells.push_back(battery);
             totalCapacity += battery.GetCapacity();
+            UpdateMinAndMaxCapacity();
         }
 
         int GetTotalCapacity() const { return totalCapacity; }
         int GetCellCount() const { return parallelCells.size();}
 
-        // Sorts in descending order by capacity.
-        void SortCells() { std::sort(parallelCells.begin(), parallelCells.end(), std::greater<Battery>());}
+        // Sorts in descending order by capacity. Also updates min and max capacity indexes after sorting.
+        void SortCells() {
+            std::sort(parallelCells.begin(), parallelCells.end(), std::greater<Battery>());
+            UpdateMinAndMaxCapacity();
+        }
 
         // Returns specific index cell.
         Battery GetCell(int index) const {
@@ -32,7 +37,7 @@ class ParallelGroup {
             return parallelCells[index];
         }
 
-        // Replaces specified index cell with new one and adjusts total capacity.
+        // Replaces specified index cell with new one and adjusts total capacity. Also updates min and max capacity indexes after replacement.
         void SetCell(int index, const Battery& battery) {
             if (index < 0 || index >= parallelCells.size()) {
                 throw std::out_of_range("Index out of range");
@@ -40,10 +45,50 @@ class ParallelGroup {
             totalCapacity -= parallelCells[index].GetCapacity();
             totalCapacity += battery.GetCapacity();
             parallelCells[index] = battery;
+            UpdateMinAndMaxCapacity();
         }
+
+        int GetMinCapacity() const {return parallelCells[minCapacityIndex].GetCapacity();}
+        int GetMaxCapacity() const {return parallelCells[maxCapacityIndex].GetCapacity();}
+        double GetAverageCapacity() const {return totalCapacity/parallelCells.size();}
+
+        // Calculates the percentage difference between the maximum and minimum capacities in the parallel group relative to the average capacity.
+        double GetVariancePercentage() const {
+            int maximumDifference  = parallelCells[maxCapacityIndex].GetCapacity() - parallelCells[minCapacityIndex].GetCapacity();
+            if (maximumDifference == 0) return 0.0;
+            return static_cast<double>(maximumDifference) / GetAverageCapacity() * 100.0;
+        }
+
+        // Calculates the total energy of the parallel group in Watt-hours (Wh) based on the nominal cell voltage.
+        double GetTotalPackEnergy(double nominalCellVoltage) const { return totalCapacity / 1000.0 * nominalCellVoltage ; }
+
+
     private:
         std::vector<Battery> parallelCells;  // Battery vector for parallel group cells.
         int totalCapacity;       // Total capacity of the parallel group, updated whenever a cell is added or replaced.
+        int minCapacityIndex = -1; // Index of the cell with minimum capacity in the parallel group.
+        int maxCapacityIndex = -1; // Index of the cell with maximum capacity in the parallel group.
+
+
+        // Finds the indexes of the cells with minimum and maximum capacities in the parallel group and updates the corresponding member variables.
+        void UpdateMinAndMaxCapacity() {
+            if (parallelCells.empty()) {
+                minCapacityIndex = -1;
+                maxCapacityIndex = -1;
+                return;
+            }
+            minCapacityIndex = 0;
+            maxCapacityIndex = 0;
+            for (int i = 1; i < parallelCells.size(); i++) {
+                if (parallelCells[i].GetCapacity() < parallelCells[minCapacityIndex].GetCapacity()) {
+                    minCapacityIndex = i;
+                }
+                if (parallelCells[i].GetCapacity() > parallelCells[maxCapacityIndex].GetCapacity()) {
+                    maxCapacityIndex = i;
+                }
+            }
+        }
+
 };
 
 

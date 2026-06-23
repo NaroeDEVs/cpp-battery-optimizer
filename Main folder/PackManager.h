@@ -57,8 +57,13 @@ public:
 
     Battery GetCell(int seriesIndex, int parallelIndex) const { return seriesGroups[seriesIndex].GetCell(parallelIndex); }
 
-    // Returns total capacity of specified parallel group.
+    // Single parallel group info getters.
     int GetIndexParallelCapacity(int seriesIndex) const { return seriesGroups[seriesIndex].GetTotalCapacity();}
+    int GetIndexParallelMaxCapacity(int seriesIndex) const { return seriesGroups[seriesIndex].GetMaxCapacity(); }
+    int GetIndexParallelMinCapacity(int seriesIndex) const { return seriesGroups[seriesIndex].GetMinCapacity(); }
+    double GetIndexParallelAverageCapacity(int seriesIndex) const { return seriesGroups[seriesIndex].GetAverageCapacity(); }
+    double GetIndexParallelVariancePercentage(int seriesIndex) const { return seriesGroups[seriesIndex].GetVariancePercentage(); }
+    double GetIndexParallelTotalPackVoltage(int seriesIndex) const { return seriesGroups[seriesIndex].GetTotalPackEnergy(nominalCellVoltage); }
 
     // Returns maximum parallel group total capacity.
     int MaxCapacity() const {
