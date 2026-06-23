@@ -26,6 +26,8 @@ int main() {
     dataHandler.ReadData(AllBateries);
     bool areUnique = AllBateries.CheckIfAnyBatteryIsUnique();
 
+    std::vector<Battery> unusedBatteries = AllBateries.GetAndRemoveBadResistanceCells(60.0);
+
     string selectedType = dataHandler.GetUserStringInput("Select to pack by voltage or manual "
                                                          "series/parallel input (v for voltage, m for manual, d for defaults): ", "vmd");
     double nominalCellVoltage = 0;

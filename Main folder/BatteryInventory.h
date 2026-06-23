@@ -18,7 +18,7 @@ class BatteryInventory {
         // Function to push Battery cell object to cells vector, updates uniqueCells bool variable.
         void AddCell(const Battery& battery) {
             cells.push_back(battery);
-            if (!uniqueCells && cells.size()>0 && cells[0].GetCapacity() != battery.GetCapacity()) {
+            if (!uniqueCells && cells.size()>0 && cells[0].GetCapacity() != battery.GetCapacity() || cells[0].GetInternalResistance() != battery.GetInternalResistance()) {
                 uniqueCells = true;
             }
         }
@@ -44,6 +44,20 @@ class BatteryInventory {
             Sort();
             int minCount = std::min(numBatteries, GetCellCount());
             return std::vector<Battery>(cells.begin(), cells.begin() + minCount);
+        }
+
+        std::vector<Battery> GetAndRemoveBadResistanceCells(double maxResistance) {
+            std::vector<Battery> badCells;
+            auto it = cells.begin();
+            while (it != cells.end()) {
+                if (it->GetInternalResistance() > maxResistance) {
+                    badCells.push_back(*it);
+                    it = cells.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+            return badCells;
         }
 
     private:
