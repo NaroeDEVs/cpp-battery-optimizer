@@ -17,8 +17,9 @@ class ParallelGroup {
         void AddCell(const Battery& battery) {
             parallelCells.push_back(battery);
             totalCapacity += battery.GetCapacity();
-            UpdateMinAndMaxCapacity();
-            CalculateTotalInternalResistance();
+            sumOfIndividualResistances += battery.GetResistance();
+            UpdateMinAndMaxCapacityAndResistance();
+            CalculateTotalResistance();
         }
 
         int GetTotalCapacity() const { return totalCapacity; }
@@ -27,7 +28,7 @@ class ParallelGroup {
         // Sorts in descending order by capacity. Also updates min and max capacity indexes after sorting.
         void SortCells() {
             std::sort(parallelCells.begin(), parallelCells.end(), std::greater<Battery>());
-            UpdateMinAndMaxCapacity();
+            UpdateMinAndMaxCapacityAndResistance();
         }
 
         // Returns specific index cell.
@@ -45,17 +46,20 @@ class ParallelGroup {
             }
             totalCapacity -= parallelCells[index].GetCapacity();
             totalCapacity += battery.GetCapacity();
+            sumOfIndividualResistances -= parallelCells[index].GetResistance();
+            sumOfIndividualResistances += battery.GetResistance();
             parallelCells[index] = battery;
-            UpdateMinAndMaxCapacity();
-            CalculateTotalInternalResistance();
+            UpdateMinAndMaxCapacityAndResistance();
+            CalculateTotalResistance();
         }
 
+        //  ---- Capacity analytics ----
         int GetMinCapacity() const {return parallelCells[minCapacityIndex].GetCapacity();}
         int GetMaxCapacity() const {return parallelCells[maxCapacityIndex].GetCapacity();}
         double GetAverageCapacity() const {return totalCapacity/parallelCells.size();}
 
-        // Calculates the percentage difference between the maximum and minimum capacities in the parallel group relative to the average capacity.
-        double GetVariancePercentage() const {
+        // Returns the percentage difference between the maximum and minimum capacities in the parallel group relative to the average capacity.
+        double GetCapacityVariancePercentage() const {
             int maximumDifference  = parallelCells[maxCapacityIndex].GetCapacity() - parallelCells[minCapacityIndex].GetCapacity();
             if (maximumDifference == 0) return 0.0;
             return static_cast<double>(maximumDifference) / GetAverageCapacity() * 100.0;
@@ -63,27 +67,50 @@ class ParallelGroup {
 
         // Calculates the total energy of the parallel group in Watt-hours (Wh) based on the nominal cell voltage.
         double GetTotalPackEnergy(double nominalCellVoltage) const { return totalCapacity / 1000.0 * nominalCellVoltage ; }
-        double GetTotalInternalResistance() const { return totalInternalResistance; }
+
+        // -------------------------------
 
 
+
+        //  ---- Resistance analytics ----
+
+        double GetTotalResistance() const { return totalResistance; }
+        double GetMaxResistance() const { return parallelCells[maxResistanceIndex].GetResistance(); }
+        double GetMinResistance() const { return parallelCells[minResistanceIndex].GetResistance(); }
+        double GetAverageResistance() const { return sumOfIndividualResistances/parallelCells.size(); }
+
+        double GetResistanceVariancePercentage() const {
+            double maximumDifference  = parallelCells[maxResistanceIndex].GetResistance() - parallelCells[minResistanceIndex].GetResistance();
+            if (maximumDifference == 0) return 0.0;
+            return maximumDifference / GetAverageResistance() * 100.0;
+        }
+        // -------------------------------
 
     private:
         std::vector<Battery> parallelCells;  // Battery vector for parallel group cells.
         int totalCapacity;       // Total capacity of the parallel group, updated whenever a cell is added or replaced.
+
         int minCapacityIndex = -1; // Index of the cell with minimum capacity in the parallel group.
         int maxCapacityIndex = -1; // Index of the cell with maximum capacity in the parallel group.
-        double totalInternalResistance = 0.0;
+        int minResistanceIndex = -1;
+        int maxResistanceIndex = -1;
+        double sumOfIndividualResistances = 0.0;
+        double totalResistance = 0.0;
 
 
         // Finds the indexes of the cells with minimum and maximum capacities in the parallel group and updates the corresponding member variables.
-        void UpdateMinAndMaxCapacity() {
+        void UpdateMinAndMaxCapacityAndResistance() {
             if (parallelCells.empty()) {
                 minCapacityIndex = -1;
                 maxCapacityIndex = -1;
+                minResistanceIndex = -1;
+                maxResistanceIndex = -1;
                 return;
             }
             minCapacityIndex = 0;
             maxCapacityIndex = 0;
+            minResistanceIndex = 0;
+            maxResistanceIndex = 0;
             for (int i = 1; i < parallelCells.size(); i++) {
                 if (parallelCells[i].GetCapacity() < parallelCells[minCapacityIndex].GetCapacity()) {
                     minCapacityIndex = i;
@@ -91,21 +118,27 @@ class ParallelGroup {
                 if (parallelCells[i].GetCapacity() > parallelCells[maxCapacityIndex].GetCapacity()) {
                     maxCapacityIndex = i;
                 }
+                if (parallelCells[i].GetResistance() < parallelCells[minResistanceIndex].GetResistance()) {
+                    minResistanceIndex = i;
+                }
+                if (parallelCells[i].GetResistance() > parallelCells[maxResistanceIndex].GetResistance()) {
+                    maxResistanceIndex = i;
+                }
             }
         }
 
         // Calculates total internal resistance of the parallel group using the formula: 1/R_total = 1/R1 + 1/R2 + ... + 1/Rn.
-        void CalculateTotalInternalResistance() {
+        void CalculateTotalResistance() {
             double internalResitance = 0;
             for (int i=0; i<parallelCells.size(); i++) {
-                if (parallelCells[i].GetInternalResistance() > 0) {
-                    internalResitance += 1.0/parallelCells[i].GetInternalResistance();
+                if (parallelCells[i].GetResistance() > 0) {
+                    internalResitance += 1.0/parallelCells[i].GetResistance();
                 }
             }
             if (internalResitance > 0) {
-                totalInternalResistance = 1.0/internalResitance;
+                totalResistance = 1.0/internalResitance;
             }
-            else totalInternalResistance = 0.0;
+            else totalResistance = 0.0;
         }
 
 };

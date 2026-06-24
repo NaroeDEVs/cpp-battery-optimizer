@@ -14,7 +14,7 @@ public:
     PackManager() = default;
 
     // sets the size of the pack in series and parallel
-    void SetSize(int  series, int parallel) {
+    void SetSize(int series, int parallel) {
         seriesCount = series;
         parallelCount = parallel;
         seriesGroups.resize(seriesCount);
@@ -35,10 +35,10 @@ public:
     // ---- Exemption stage ----
     // Packs the cells into the pack without any optimization, just filling groups in order.
     // Used in case of all cells being same capacity to reduce complexity and time of packing.
-    void PackWithoutOptimization(BatteryInventory& batteryInventory) {
+    void PackWithoutOptimization(BatteryInventory &batteryInventory) {
         int k = 0;
-        for (int i=0; i<seriesCount; i++) {
-            for (int j=0; j<parallelCount; j++) {
+        for (int i = 0; i < seriesCount; i++) {
+            for (int j = 0; j < parallelCount; j++) {
                 seriesGroups[i].AddCell(batteryInventory.GetCell(k));
                 k++;
             }
@@ -47,9 +47,9 @@ public:
 
     // ---- 1st packing stage: Greedy packing algorithm. ----
     // Packs by taking top series*parallel sorted cells and assigns them to whichever next parallel group has lowest capacity.
-    void PackWithOptimization(BatteryInventory& batteryInventory) {
+    void PackWithOptimization(BatteryInventory &batteryInventory) {
         std::vector<Battery> bestCells = batteryInventory.GetTopCells(seriesCount * parallelCount);
-        for (int i = 0; i < seriesCount*parallelCount; i++) {
+        for (int i = 0; i < seriesCount * parallelCount; i++) {
             Battery battery = bestCells[i];
             int groupIndex = GetLowestCapacityGroupIndex();
             if (groupIndex != -1) {
@@ -61,20 +61,46 @@ public:
     int GetSeries() const { return seriesCount; }
     int GetParallel() const { return parallelCount; }
 
-    Battery GetCell(int seriesIndex, int parallelIndex) const { return seriesGroups[seriesIndex].GetCell(parallelIndex); }
+    Battery GetCell(int seriesIndex, int parallelIndex) const {
+        return seriesGroups[seriesIndex].GetCell(parallelIndex);
+    }
 
     // Single parallel group info getters.
-    int GetIndexParallelCapacity(int seriesIndex) const { return seriesGroups[seriesIndex].GetTotalCapacity();}
+    int GetIndexParallelCapacity(int seriesIndex) const { return seriesGroups[seriesIndex].GetTotalCapacity(); }
     int GetIndexParallelMaxCapacity(int seriesIndex) const { return seriesGroups[seriesIndex].GetMaxCapacity(); }
     int GetIndexParallelMinCapacity(int seriesIndex) const { return seriesGroups[seriesIndex].GetMinCapacity(); }
-    double GetIndexParallelAverageCapacity(int seriesIndex) const { return seriesGroups[seriesIndex].GetAverageCapacity(); }
-    double GetIndexParallelVariancePercentage(int seriesIndex) const { return seriesGroups[seriesIndex].GetVariancePercentage(); }
-    double GetIndexParallelTotalPackVoltage(int seriesIndex) const { return seriesGroups[seriesIndex].GetTotalPackEnergy(nominalCellVoltage); }
+
+    double GetIndexParallelAverageCapacity(int seriesIndex) const {
+        return seriesGroups[seriesIndex].GetAverageCapacity();
+    }
+
+    double GetIndexParallelVariancePercentage(int seriesIndex) const {
+        return seriesGroups[seriesIndex].GetCapacityVariancePercentage();
+    }
+
+    double GetIndexParallelTotalPackVoltage(int seriesIndex) const {
+        return seriesGroups[seriesIndex].GetTotalPackEnergy(nominalCellVoltage);
+    }
+
+    double GetIndexParallelTotalResistance(int seriesIndex) const {
+        return seriesGroups[seriesIndex].GetTotalResistance();
+    }
+
+    double GetIndexParallelMaxResistance(int seriesIndex) const { return seriesGroups[seriesIndex].GetMaxResistance(); }
+    double GetIndexParallelMinResistance(int seriesIndex) const { return seriesGroups[seriesIndex].GetMinResistance(); }
+
+    double GetIndexParallelAverageResistance(int seriesIndex) const {
+        return seriesGroups[seriesIndex].GetAverageResistance();
+    }
+
+    double GetIndexParallelResistanceVariancePercentage(int seriesIndex) const {
+        return seriesGroups[seriesIndex].GetResistanceVariancePercentage();
+    }
 
     // Returns maximum parallel group total capacity.
     int MaxCapacity() const {
         if (seriesCount > 0) {
-            return FindMinMaxIndexes().maxCapacity;
+            return MinMaxIndexes().maxCapacity;
         }
         return 0;
     }
@@ -82,7 +108,7 @@ public:
     // Returns minimum parallel group total capacity.
     int MinCapacity() const {
         if (seriesCount > 0) {
-            return FindMinMaxIndexes().minCapacity;
+            return MinMaxIndexes().minCapacity;
         }
         return 0;
     }
@@ -103,10 +129,10 @@ public:
     }
 
     // Returns percentage variance between the weakest and strongest parallel group, calculated as (max - min) / average * 100.
-    double CalculateVariancePercentage() const {
+    double CalculateCapacityVariancePercentage() const {
         double variance = 0;
         double averageCap = CalculateAverageCapacity();
-        auto extremes = FindMinMaxIndexes();
+        auto extremes = MinMaxIndexes();
         int biggestDifference = extremes.maxCapacity - extremes.minCapacity;
         variance = static_cast<double>(biggestDifference) / averageCap;
         return variance * 100;
@@ -134,27 +160,63 @@ public:
 
             for (int i = 0; i < seriesCount; i++) {
                 for (int j = i + 1; j < seriesCount; j++) {
-
                     if (OptimizeParallelGroups(seriesGroups[i], seriesGroups[j])) {
                         madeAnyImprovement = true;
                     }
-
                 }
             }
         }
     }
 
+    // Returns whole pack maximum voltage.
     double TotalMaxVoltage() const {
         return maxSingleCellVoltage * seriesCount;
     }
 
+    // Returns whole pack total resistance, which is the sum of all parallel groups resistances.
+    double GetTotalResistance() const {
+        double totalResistance = 0.0;
+        for (const auto &group: seriesGroups) {
+            totalResistance += group.GetTotalResistance();
+        }
+        return totalResistance;
+    }
+
+    // Returns maximum parallel group total resistance.
+    double GetMaxResistance() const {
+        if (seriesCount > 0) {
+            return MinMaxIndexes().maxInternalResistance;
+        }
+        return 0.0;
+    }
+
+    // Returns minimum parallel group total resistance.
+    double GetMinResistance() const {
+        if (seriesCount > 0) {
+            return MinMaxIndexes().minInternalResistance;
+        }
+        return 0.0;
+    }
+    // Returns average parallel group total resistance.
+    double GetAverageResistance() const {
+        return GetTotalResistance() / seriesCount;
+    }
+
+    // Returns percentage variance between the weakest and strongest parallel group resistances.
+    double GetResistanceVariancePercentage() const {
+        double averageResistance = GetAverageResistance();
+        auto extremes = MinMaxIndexes();
+        double biggestDifference = extremes.maxInternalResistance - extremes.minInternalResistance;
+        if (averageResistance == 0) return 0.0;
+        return (biggestDifference / averageResistance) * 100.0;
+    }
 
 private:
     std::vector<ParallelGroup> seriesGroups; // Vector holding parallel groups, which in turn hold cells.
-    int seriesCount;                         // Number of parallel groups in series (number of cells in series).
-    int parallelCount;                       // Number of cells in each parallel group.
-    double nominalCellVoltage;               // Nominal voltage of a single cell.
-    double maxSingleCellVoltage;             // Maximum voltage of a single cell.
+    int seriesCount; // Number of parallel groups in series (number of cells in series).
+    int parallelCount; // Number of cells in each parallel group.
+    double nominalCellVoltage; // Nominal voltage of a single cell.
+    double maxSingleCellVoltage; // Maximum voltage of a single cell.
 
     double selectedWresistance = 0.5;
     double selectedWcapacity = 0.5;
@@ -187,11 +249,10 @@ private:
     }
 
     // Finds the indexes of the parallel groups with minimum and maximum total capacities and internal resistances.
-    PackExtremes FindMinMaxIndexes() const {
+    PackExtremes MinMaxIndexes() const {
         if (seriesCount == 0) return {};
         PackExtremes extremes;
         for (int i = 0; i < seriesCount; i++) {
-
             int totalCap = seriesGroups[i].GetTotalCapacity();
             if (totalCap < extremes.minCapacity) {
                 extremes.minCapacityIndex = i;
@@ -202,7 +263,7 @@ private:
                 extremes.maxCapacity = totalCap;
             }
 
-            double internalResistance = seriesGroups[i].GetTotalInternalResistance();
+            double internalResistance = seriesGroups[i].GetTotalResistance();
             if (internalResistance < extremes.minInternalResistance) {
                 extremes.minInternalResistanceIndex = i;
                 extremes.minInternalResistance = internalResistance;
@@ -228,11 +289,14 @@ private:
 
     // Optimizes two parallel groups by attempting to swap cells between them to minimize the difference in total capacities and internal resistances, based on a weighted score.
     // Returns true if a swap was made, false otherwise.
-    bool OptimizeParallelGroups(ParallelGroup& parallelGroup1, ParallelGroup& parallelGroup2) {
+    bool OptimizeParallelGroups(ParallelGroup &parallelGroup1, ParallelGroup &parallelGroup2) {
         int bestI = -1;
         int bestJ = -1;
-        double bestScore = CalculateComparisonScore(selectedWcapacity, selectedWresistance, parallelGroup1.GetTotalCapacity(), parallelGroup2.GetTotalCapacity(),
-            parallelGroup1.GetTotalInternalResistance(), parallelGroup2.GetTotalInternalResistance());
+        double bestScore = CalculateComparisonScore(selectedWcapacity, selectedWresistance,
+                                                    parallelGroup1.GetTotalCapacity(),
+                                                    parallelGroup2.GetTotalCapacity(),
+                                                    parallelGroup1.GetTotalResistance(),
+                                                    parallelGroup2.GetTotalResistance());
 
         for (int i = 0; i < parallelGroup1.GetCellCount(); i++) {
             int cap1 = parallelGroup1.GetCell(i).GetCapacity();
@@ -240,11 +304,11 @@ private:
                 int cap2 = parallelGroup2.GetCell(j).GetCapacity();
                 int hypotheticalCap1 = parallelGroup1.GetTotalCapacity() - cap1 + cap2;
                 int hypotheticalCap2 = parallelGroup2.GetTotalCapacity() - cap2 + cap1;
-                double res1 = parallelGroup1.GetCell(i).GetInternalResistance();
-                double res2 = parallelGroup2.GetCell(j).GetInternalResistance();
+                double res1 = parallelGroup1.GetCell(i).GetResistance();
+                double res2 = parallelGroup2.GetCell(j).GetResistance();
 
-                double currentTotalRes1 = parallelGroup1.GetTotalInternalResistance();
-                double currentTotalRes2 = parallelGroup2.GetTotalInternalResistance();
+                double currentTotalRes1 = parallelGroup1.GetTotalResistance();
+                double currentTotalRes2 = parallelGroup2.GetTotalResistance();
 
                 double hypotheticalRes1 = currentTotalRes1;
                 double hypotheticalRes2 = currentTotalRes2;
@@ -254,8 +318,9 @@ private:
                     hypotheticalRes1 = 1.0 / ((1.0 / currentTotalRes1) - (1.0 / res1) + (1.0 / res2));
                     hypotheticalRes2 = 1.0 / ((1.0 / currentTotalRes2) - (1.0 / res2) + (1.0 / res1));
                 }
-                double hypotheticalScore = CalculateComparisonScore( selectedWcapacity, selectedWresistance, hypotheticalCap1, hypotheticalCap2,
-                    hypotheticalRes1, hypotheticalRes2
+                double hypotheticalScore = CalculateComparisonScore(selectedWcapacity, selectedWresistance,
+                                                                    hypotheticalCap1, hypotheticalCap2,
+                                                                    hypotheticalRes1, hypotheticalRes2
                 );
 
                 if (hypotheticalScore < bestScore) {
@@ -277,8 +342,7 @@ private:
     }
 
     double CalculateComparisonScore(const double Wcapacity, const double Wresistance, const int capacity1,
-        const int capacity2, const double resistance1, const double resistance2) const
-    {
+                                    const int capacity2, const double resistance1, const double resistance2) const {
         double capacityDifference = IntegerDifference(capacity1, capacity2);
         double resistanceDifference = DoubleDifference(resistance1, resistance2);
         double capacityDeviation = 0.0;
