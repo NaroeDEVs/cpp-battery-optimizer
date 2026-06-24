@@ -117,6 +117,5 @@ int main() {
         dataHandler.DetailedCellOutput(allPacks, "Detailed cell output");
     }
 
-
     return 0;
 }
