@@ -24,14 +24,20 @@ int main() {
     int parallel = 0;
 
     dataHandler.ReadData(AllBateries);
-    bool areUnique = AllBateries.CheckIfAnyBatteryIsUnique();
+    bool uniqueByCapacity = AllBateries.CheckUniqueByCapacity();
+    bool uniqueByResistance = AllBateries.CheckUniqueByResistance();
 
-    std::vector<Battery> unusedBatteries = AllBateries.GetAndRemoveBadResistanceCells(60.0);
+    double selectedInternalResistanceLimit = 70.0;
+
+    std::vector<Battery> unusedBatteries = AllBateries.GetAndRemoveBadResistanceCells(selectedInternalResistanceLimit);
+
+    double resistanceWeight = dataHandler.GetUserDoubleInput("Resistance weight percentage (0 - 100%): ") / 100.0;
+    double capacityWeight = dataHandler.GetUserDoubleInput("Capacity weight percentage (0 - 100%): ") / 100.0;
 
     string selectedType = dataHandler.GetUserStringInput("Select to pack by voltage or manual "
                                                          "series/parallel input (v for voltage, m for manual, d for defaults): ", "vmd");
     double nominalCellVoltage = 0;
-    double maxCellVoltage = 0;
+    double maxCellVoltage = 4.2;
 
     if (selectedType == "v") {
         // Option A: Calculate configuration based on voltage targets
@@ -56,12 +62,14 @@ int main() {
         series = dataHandler.GetUserSeries();
         parallel = dataHandler.GetUserParallel();
         nominalCellVoltage = dataHandler.GetUserDoubleInput("Nominal single cell voltage (e.g., 3.6): ");
+        maxCellVoltage = dataHandler.GetUserDoubleInput("Max single cell voltage (e.g., 4.2): "); // <- Pridedame įvestį čia
     }
     else if (selectedType == "d") {
         // Option C: Defaults
         series = 16;
         parallel = 5;
         nominalCellVoltage = 3.7;
+        maxCellVoltage = 4.2;
     }
 
     // Unified boundary check for safety
@@ -73,14 +81,32 @@ int main() {
 
     PackManager allPacks;
 
-    if (areUnique) {
+    if (uniqueByCapacity && uniqueByResistance) {
         allPacks.SetSize(series, parallel);
         allPacks.SetVoltages(nominalCellVoltage, maxCellVoltage);
+        allPacks.SetOptimizationWeights(capacityWeight, resistanceWeight);
         allPacks.PackWithOptimization(AllBateries);
         dataHandler.CompactCellOutput(allPacks, "Initial base optimization");
 
         allPacks.HillClimbOptimization();
         dataHandler.CompactCellOutput(allPacks, "After hill climbing optimization");
+        dataHandler.DetailedCellOutput(allPacks, "Detailed cell output");
+    }
+    else if (uniqueByCapacity && !uniqueByResistance) {
+        allPacks.SetSize(series, parallel);
+        allPacks.SetVoltages(nominalCellVoltage, maxCellVoltage);
+        allPacks.SetOptimizationWeights(capacityWeight, 0);
+        allPacks.PackWithoutOptimization(AllBateries);
+        dataHandler.CompactCellOutput(allPacks, "Packs output");
+        dataHandler.DetailedCellOutput(allPacks, "Detailed cell output");
+    }
+
+    else if (!uniqueByCapacity && uniqueByResistance) {
+        allPacks.SetSize(series, parallel);
+        allPacks.SetVoltages(nominalCellVoltage, maxCellVoltage);
+        allPacks.SetOptimizationWeights(0, resistanceWeight);
+        allPacks.PackWithoutOptimization(AllBateries);
+        dataHandler.CompactCellOutput(allPacks, "Packs output");
         dataHandler.DetailedCellOutput(allPacks, "Detailed cell output");
     }
     else {
@@ -90,6 +116,7 @@ int main() {
         dataHandler.CompactCellOutput(allPacks, "Packs output");
         dataHandler.DetailedCellOutput(allPacks, "Detailed cell output");
     }
+
 
     return 0;
 }

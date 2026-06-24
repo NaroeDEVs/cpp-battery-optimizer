@@ -26,6 +26,12 @@ public:
         maxSingleCellVoltage = MaxSingleCellVoltage;
     }
 
+    // sets the weights for capacity and resistance optimization.
+    void SetOptimizationWeights(double capacityWeight, double resistanceWeight) {
+        selectedWcapacity = capacityWeight;
+        selectedWresistance = resistanceWeight;
+    }
+
     // ---- Exemption stage ----
     // Packs the cells into the pack without any optimization, just filling groups in order.
     // Used in case of all cells being same capacity to reduce complexity and time of packing.
@@ -119,16 +125,22 @@ public:
     }
 
     // ---- 2nd packing stage: Hill climbing optimization algorithm. ----
-    // Iteratively tries to optimize the pack by swapping cells between the strongest and weakest parallel groups, until no improvement can be made.
+    // Iteratively tries to swap cells between parallel groups to reduce the capacity difference between them, improving overall pack balance.
     void HillClimbOptimization() {
-        while (true) {
-            auto extremes = FindMinMaxIndexes();
+        bool madeAnyImprovement = true;
 
-            if (extremes.minCapacityIndex == -1 || extremes.maxCapacityIndex == -1 || extremes.minCapacityIndex == extremes.maxCapacityIndex) {
-                break;
+        while (madeAnyImprovement) {
+            madeAnyImprovement = false;
+
+            for (int i = 0; i < seriesCount; i++) {
+                for (int j = i + 1; j < seriesCount; j++) {
+
+                    if (OptimizeParallelGroups(seriesGroups[i], seriesGroups[j])) {
+                        madeAnyImprovement = true;
+                    }
+
+                }
             }
-            bool madeImprovement = OptimizeParallelGroups(seriesGroups[extremes.minCapacityIndex], seriesGroups[extremes.maxCapacityIndex]);
-            if (!madeImprovement) break;
         }
     }
 
@@ -143,6 +155,9 @@ private:
     int parallelCount;                       // Number of cells in each parallel group.
     double nominalCellVoltage;               // Nominal voltage of a single cell.
     double maxSingleCellVoltage;             // Maximum voltage of a single cell.
+
+    double selectedWresistance = 0.5;
+    double selectedWcapacity = 0.5;
 
     // Holds indexes of the parallel groups with minimum and maximum total capacities.
     struct PackExtremes {
@@ -200,17 +215,24 @@ private:
         return extremes;
     }
 
-    // Returns the absolute difference between two capacities.
-    int CapacityDifference(int cap1, int cap2) const {
+    // Returns the absolute difference between two integers.
+    int IntegerDifference(int cap1, int cap2) const {
         return abs(cap1 - cap2);
     }
 
-    // Part of the hill climbing optimization, tries to swap cells between two parallel groups to reduce the capacity difference.
-    // Returns true if an improvement was made.
+    // Returns the absolute difference between two doubles.
+    double DoubleDifference(double cap1, double cap2) const {
+        return abs(cap1 - cap2);
+    }
+
+
+    // Optimizes two parallel groups by attempting to swap cells between them to minimize the difference in total capacities and internal resistances, based on a weighted score.
+    // Returns true if a swap was made, false otherwise.
     bool OptimizeParallelGroups(ParallelGroup& parallelGroup1, ParallelGroup& parallelGroup2) {
-        int bestDelta = CapacityDifference(parallelGroup1.GetTotalCapacity(), parallelGroup2.GetTotalCapacity());
         int bestI = -1;
         int bestJ = -1;
+        double bestScore = CalculateComparisonScore(selectedWcapacity, selectedWresistance, parallelGroup1.GetTotalCapacity(), parallelGroup2.GetTotalCapacity(),
+            parallelGroup1.GetTotalInternalResistance(), parallelGroup2.GetTotalInternalResistance());
 
         for (int i = 0; i < parallelGroup1.GetCellCount(); i++) {
             int cap1 = parallelGroup1.GetCell(i).GetCapacity();
@@ -218,10 +240,26 @@ private:
                 int cap2 = parallelGroup2.GetCell(j).GetCapacity();
                 int hypotheticalCap1 = parallelGroup1.GetTotalCapacity() - cap1 + cap2;
                 int hypotheticalCap2 = parallelGroup2.GetTotalCapacity() - cap2 + cap1;
-                int hypotheticalDelta = CapacityDifference(hypotheticalCap1, hypotheticalCap2);
+                double res1 = parallelGroup1.GetCell(i).GetInternalResistance();
+                double res2 = parallelGroup2.GetCell(j).GetInternalResistance();
 
-                if (hypotheticalDelta < bestDelta) {
-                    bestDelta = hypotheticalDelta;
+                double currentTotalRes1 = parallelGroup1.GetTotalInternalResistance();
+                double currentTotalRes2 = parallelGroup2.GetTotalInternalResistance();
+
+                double hypotheticalRes1 = currentTotalRes1;
+                double hypotheticalRes2 = currentTotalRes2;
+
+
+                if (res1 > 0 && res2 > 0 && currentTotalRes1 > 0 && currentTotalRes2 > 0) {
+                    hypotheticalRes1 = 1.0 / ((1.0 / currentTotalRes1) - (1.0 / res1) + (1.0 / res2));
+                    hypotheticalRes2 = 1.0 / ((1.0 / currentTotalRes2) - (1.0 / res2) + (1.0 / res1));
+                }
+                double hypotheticalScore = CalculateComparisonScore( selectedWcapacity, selectedWresistance, hypotheticalCap1, hypotheticalCap2,
+                    hypotheticalRes1, hypotheticalRes2
+                );
+
+                if (hypotheticalScore < bestScore) {
+                    bestScore = hypotheticalScore;
                     bestI = i;
                     bestJ = j;
                 }
@@ -235,8 +273,24 @@ private:
             parallelGroup2.SetCell(bestJ, cell1);
             return true;
         }
-
         return false;
+    }
+
+    double CalculateComparisonScore(const double Wcapacity, const double Wresistance, const int capacity1,
+        const int capacity2, const double resistance1, const double resistance2) const
+    {
+        double capacityDifference = IntegerDifference(capacity1, capacity2);
+        double resistanceDifference = DoubleDifference(resistance1, resistance2);
+        double capacityDeviation = 0.0;
+        double resistanceDeviation = 0.0;
+        if ((capacity1 + capacity2) != 0) {
+            capacityDeviation = capacityDifference / ((capacity1 + capacity2) / 2.0);
+        }
+        if ((resistance1 + resistance2) != 0) {
+            resistanceDeviation = resistanceDifference / ((resistance1 + resistance2) / 2.0);
+        }
+        double score = (Wcapacity * capacityDeviation) + (Wresistance * resistanceDeviation);
+        return score;
     }
 };
 

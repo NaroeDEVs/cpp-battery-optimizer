@@ -18,8 +18,11 @@ class BatteryInventory {
         // Function to push Battery cell object to cells vector, updates uniqueCells bool variable.
         void AddCell(const Battery& battery) {
             cells.push_back(battery);
-            if (!uniqueCells && cells.size()>0 && cells[0].GetCapacity() != battery.GetCapacity() || cells[0].GetInternalResistance() != battery.GetInternalResistance()) {
-                uniqueCells = true;
+            if (!uniqueByCapacity && cells.size()>0 && cells[0].GetCapacity() != battery.GetCapacity()) {
+                uniqueByCapacity = true;
+            }
+            if (!uniqueByResistance && cells.size()>0 && cells[0].GetInternalResistance() != battery.GetInternalResistance()) {
+                uniqueByResistance = true;
             }
         }
 
@@ -29,7 +32,8 @@ class BatteryInventory {
         void Sort() {std::sort(cells.begin(), cells.end(), std::greater<Battery>());}
 
         // Returns true if atleast one cell is different from the rest, false if all are the same.
-        bool CheckIfAnyBatteryIsUnique() const {return uniqueCells;}
+        bool CheckUniqueByCapacity() const { return uniqueByCapacity; }
+        bool CheckUniqueByResistance() const { return uniqueByResistance; }
 
         // Returns specific index cell.
         Battery GetCell(int index) const {
@@ -62,7 +66,8 @@ class BatteryInventory {
 
     private:
         std::vector<Battery> cells;     // Battery vector for storing cells.
-        bool uniqueCells = false;       // Keeps info if all cells are the same or not, false = all same, true = atleast one different.
+        bool uniqueByCapacity = false;  // True if at least one cell has a different capacity than the rest, false if all are the same.
+        bool uniqueByResistance = false; // True if at least one cell has a different internal resistance than the rest, false if all are the same.
 };
 
 #endif
