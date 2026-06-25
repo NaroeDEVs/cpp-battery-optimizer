@@ -19,9 +19,9 @@ A Python automated test suite was used to run **3,000 simulations** on randomize
 
 | Optimization Focus | Parameter | Basic Greedy Algorithm (Initial) | After Hill-Climbing | Improvement |
 | :--- | :--- | :--- | :--- | :--- |
-| **50% IR / 50% Cap**<br>*(Balanced)* | **Capacity Variance**<br>**Resistance Variance** | 16.577%<br>40.142% | **1.583%**<br>**1.799%** | 🔥 **90.5%**<br>🔥 **95.5%** |
-| **10% IR / 90% Cap**<br>*(Capacity Focus)* | **Capacity Variance**<br>**Resistance Variance** | 1.941%<br>56.544% | **0.539%**<br>**6.173%** | 🔥 **72.2%**<br>🔥 **89.1%** |
-| **90% IR / 10% Cap**<br>*(Resistance Focus)* | **Capacity Variance**<br>**Resistance Variance** | 23.047%<br>20.619% | **4.569%**<br>**0.608%** | 🔥 **80.2%**<br>🔥 **97.0%** |
+| **50% IR / 50% Cap**<br>*(Balanced)* | **Capacity Variance**<br>**Resistance Variance** | 16.577%<br>40.142% | **1.583%**<br>**1.799%** |  **90.5%**<br> **95.5%** |
+| **10% IR / 90% Cap**<br>*(Capacity Focus)* | **Capacity Variance**<br>**Resistance Variance** | 1.941%<br>56.544% | **0.539%**<br>**6.173%** |  **72.2%**<br> **89.1%** |
+| **90% IR / 10% Cap**<br>*(Resistance Focus)* | **Capacity Variance**<br>**Resistance Variance** | 23.047%<br>20.619% | **4.569%**<br>**0.608%** |  **80.2%**<br> **97.0%** |
 
 ## 🚀 How It Works
 1. **Load:** Reads your cell data (ID, Capacity, Internal Resistance, Manufacturer) from a CSV file.
