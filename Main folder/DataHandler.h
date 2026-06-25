@@ -233,7 +233,6 @@ private:
     }
 
     // Outputs a summary of the parallel group in a compact 2-column format.
-    // All labels are fully spelled out (no abbreviations) and perfectly aligned.
     void SummaryOutput(const std::string &dashedLine, int maxCapacity, int minCapacity,
                        double averageCapacity, double variancePercentage, double totalPackEnergy,
                        double totalResistance,
@@ -271,10 +270,7 @@ private:
             formatCol("Total resistance:", std::format("{:.2f} mΩ", totalResistance))
         );
 
-        std::string line6 = makeRow(
-            formatCol("Total energy:", std::format("{:.2f} Wh", totalPackEnergy)),
-            ""
-        );
+        std::string line6 = makeRow(formatCol("Total energy:", std::format("{:.2f} Wh", totalPackEnergy)),"");
 
         std::string line7 = makeRow(
             formatCol("Capacity variance:", std::format("{:.2f}%", variancePercentage)),

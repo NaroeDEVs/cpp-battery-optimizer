@@ -43,10 +43,29 @@ public:
         return cells[index];
     }
 
-    // Returns vector of top best by capacity cells (count numBatteries).
-    std::vector<Battery> GetTopCells(int numBatteries) {
-        Sort();
-        int minCount = std::min(numBatteries, GetCellCount());
+    std::vector<Battery> GetTopCells(int numBatteries, double wCap, double wRes) {
+        if (cells.empty()) return {};
+
+        double maxCap = 1.0;
+        double maxRes = 1.0;
+
+        for (int i = 0; i < cells.size(); i++) {
+            if (cells[i].GetCapacity() > maxCap) {
+                maxCap = cells[i].GetCapacity();
+            }
+            if (cells[i].GetResistance() > maxRes) {
+                maxRes = cells[i].GetResistance();
+            }
+        }
+
+        std::sort(cells.begin(), cells.end(), [&](const Battery& a, const Battery& b) {
+            double scoreA = (wCap * (a.GetCapacity() / maxCap)) - (wRes * (a.GetResistance() / maxRes));
+            double scoreB = (wCap * (b.GetCapacity() / maxCap)) - (wRes * (b.GetResistance() / maxRes));
+
+            return scoreA > scoreB;
+        });
+
+        int minCount = std::min(numBatteries, (int)cells.size());
         return std::vector<Battery>(cells.begin(), cells.begin() + minCount);
     }
 

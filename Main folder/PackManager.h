@@ -48,7 +48,8 @@ public:
     // ---- 1st packing stage: Greedy packing algorithm. ----
     // Packs by taking top series*parallel sorted cells and assigns them to whichever next parallel group has lowest capacity.
     void PackWithOptimization(BatteryInventory &batteryInventory) {
-        std::vector<Battery> bestCells = batteryInventory.GetTopCells(seriesCount * parallelCount);
+        std::vector<Battery> bestCells = batteryInventory.GetTopCells(seriesCount * parallelCount, selectedWcapacity,
+                                                                      selectedWresistance);
         for (int i = 0; i < seriesCount * parallelCount; i++) {
             Battery battery = bestCells[i];
             int groupIndex = GetLowestCapacityGroupIndex();
@@ -197,6 +198,7 @@ public:
         }
         return 0.0;
     }
+
     // Returns average parallel group total resistance.
     double GetAverageResistance() const {
         return GetTotalResistance() / seriesCount;
@@ -323,7 +325,7 @@ private:
                                                                     hypotheticalRes1, hypotheticalRes2
                 );
 
-                if (hypotheticalScore < bestScore) {
+                if (hypotheticalScore < (bestScore - 0.000001)) {
                     bestScore = hypotheticalScore;
                     bestI = i;
                     bestJ = j;
