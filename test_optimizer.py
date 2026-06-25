@@ -90,8 +90,8 @@ def run_test_suite(res_w, cap_w, num_tests):
     cap_imp = ((avg_base_cap - avg_final_cap) / avg_base_cap) * 100 if avg_base_cap > 0 else 0
     res_imp = ((avg_base_res - avg_final_res) / avg_base_res) * 100 if avg_base_res > 0 else 0
     
-    print(f"   [🔥] IMPROVEMENT (Capacity): {cap_imp:.1f}% better")
-    print(f"   [🔥] IMPROVEMENT (Resistance): {res_imp:.1f}% better")
+    print(f"    IMPROVEMENT (Capacity): {cap_imp:.1f}% better")
+    print(f"    IMPROVEMENT (Resistance): {res_imp:.1f}% better")
     print("-" * 55)
 
 def main():
@@ -106,7 +106,7 @@ def main():
     ]
 
     print("=" * 60)
-    print(f"   [⚙️] MASSIVE BENCHMARKING (Total {len(configs) * TEST_RUNS_PER_CONFIG} tests) [⚙️]")
+    print(f"   MASSIVE BENCHMARKING (Total {len(configs) * TEST_RUNS_PER_CONFIG} tests) ")
     print("=" * 60)
 
     for res_w, cap_w in configs:
