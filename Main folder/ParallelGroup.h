@@ -92,10 +92,10 @@ class ParallelGroup {
 
         int minCapacityIndex = -1; // Index of the cell with minimum capacity in the parallel group.
         int maxCapacityIndex = -1; // Index of the cell with maximum capacity in the parallel group.
-        int minResistanceIndex = -1;
-        int maxResistanceIndex = -1;
-        double sumOfIndividualResistances = 0.0;
-        double totalResistance = 0.0;
+        int minResistanceIndex = -1; // Index of the cell with minimum internal resistance in the parallel group.
+        int maxResistanceIndex = -1; // Index of the cell with maximum internal resistance in the parallel group.
+        double sumOfIndividualResistances = 0.0; // Sum of the internal resistances of all cells in the parallel group, used to calculate average resistance.
+        double totalResistance = 0.0; // Total internal resistance of the parallel group, calculated using the formula for parallel resistances.
 
 
         // Finds the indexes of the cells with minimum and maximum capacities in the parallel group and updates the corresponding member variables.

@@ -12,8 +12,7 @@
 // Represents a battery inventory.
 class BatteryInventory {
 public:
-    BatteryInventory() {
-    } // Empty constructor
+    BatteryInventory() {} // Empty constructor
 
     // Function to push Battery cell object to cells vector, updates uniqueCells bool variable.
     void AddCell(const Battery &battery) {
@@ -43,6 +42,7 @@ public:
         return cells[index];
     }
 
+    // Returns a vector of the top numBatteries cells based on a weighted score calculated from capacity and resistance.
     std::vector<Battery> GetTopCells(int numBatteries, double wCap, double wRes) {
         if (cells.empty()) return {};
 
@@ -69,6 +69,7 @@ public:
         return std::vector<Battery>(cells.begin(), cells.begin() + minCount);
     }
 
+    // Removes and returns all cells with resistance greater than maxResistance from the inventory.
     std::vector<Battery> GetAndRemoveBadResistanceCells(double maxResistance) {
         std::vector<Battery> badCells;
         auto it = cells.begin();
@@ -85,10 +86,8 @@ public:
 
 private:
     std::vector<Battery> cells; // Battery vector for storing cells.
-    bool uniqueByCapacity = false;
-    // True if at least one cell has a different capacity than the rest, false if all are the same.
-    bool uniqueByResistance = false;
-    // True if at least one cell has a different internal resistance than the rest, false if all are the same.
+    bool uniqueByCapacity = false; // True if at least one cell has a different capacity than the rest, false if all are the same.
+    bool uniqueByResistance = false; // True if at least one cell has a different internal resistance than the rest, false if all are the same.
 };
 
 #endif
