@@ -15,7 +15,7 @@ Unlike basic calculators that only balance by capacity, this optimizer uses a du
 ## 📊 Benchmarks & Performance
 A Python automated test suite was used to run **3,000 simulations** on randomized "salvaged" cell data to compare this optimizer's Hill-Climbing algorithm against standard greedy algorithms (like Repackr). 
 
-**Hardware:** Tested on Fedora Linux (Execution time for 1,000 iterations: ~16 seconds).
+**Hardware:** Tested on Fedora Linux (AMD Ryzen 5 4600h) (Execution time for 1,000 iterations: ~16 seconds).
 
 | Optimization Focus | Parameter | Basic Greedy Algorithm (Initial) | After Hill-Climbing | Improvement |
 | :--- | :--- | :--- | :--- | :--- |
