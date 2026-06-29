@@ -29,6 +29,7 @@ public:
 
         std::string line;
         std::getline(reader, line);
+
         while (std::getline(reader, line)) {
             std::istringstream ss(line);
             std::string idString, capacityString, manufacturerString, conditionString, internalResistanceString;
@@ -179,7 +180,8 @@ private:
         std::string output = "|";
         for (int i = 0; i < packManager.GetSeries(); i++) {
             Battery h = packManager.GetCell(i, selectedCell);
-            output += std::format(" {:<6}|", h.GetCapacity());
+            output += std::format(" {:<6}|", h
+.GetCapacity());
         }
         return output;
     }
@@ -276,6 +278,7 @@ private:
             formatCol("Capacity variance:", std::format("{:.2f}%", variancePercentage)),
             formatCol("Resistance variance:", std::format("{:.2f}%", resistanceVariancePercentage))
         );
+
 
         // Output block
         std::cout << line1 << '\n'

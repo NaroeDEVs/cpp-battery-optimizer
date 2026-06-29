@@ -10,6 +10,7 @@
 #include "DataHandler.h"
 #include "ParallelGroup.h"
 #include "PackManager.h"
+#include "ChoiceAssistant.h"
 
 using namespace std;
 
